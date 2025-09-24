@@ -1,30 +1,29 @@
 {
-  "name": "driverslic",
+  "name": "ancients",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint"
   },
   "dependencies": {
-    "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.3",
-    "lucide-react": "^0.539.0",
-    "next": "15.4.6",
-    "qrcodejs": "^1.0.0",
+    "font-awesome": "^4.7.0",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.542.0",
+    "next": "15.5.2",
     "qrious": "^4.0.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-intersection-observer": "^9.16.0",
+    "react-router-dom": "^7.9.1",
+    "sass": "^1.92.0",
+    "scss": "^0.2.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.4.6",
-    "typescript": "^5"
+    "eslint-config-next": "15.5.2"
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 import QRious from "qrious";
 export default function DriverPage() {
   const drivers = {
@@ -34,14 +35,8 @@ export default function DriverPage() {
       driving_since: 2021,
       insurance_policy_number: "INS-LAG-0012345",
       documents: [
-        {
-          doc: "Driver's License",
-          expires: "2026-06-30",
-        },
-        {
-          doc: "Vehicle Registration",
-          expires: "2025-05-15",
-        },
+        { doc: "Driver's License", expires: "2026-06-30" },
+        { doc: "Vehicle Registration", expires: "2025-05-15" },
       ],
     },
     2: {
@@ -75,18 +70,9 @@ export default function DriverPage() {
       driving_since: 2015,
       insurance_policy_number: "INS-OYO-0023456",
       documents: [
-        {
-          doc: "Driver's License",
-          expires: "2027-02-28",
-        },
-        {
-          doc: "Insurance Card",
-          expires: "2026-11-20",
-        },
-        {
-          doc: "Certificate of Roadworthiness",
-          expires: "2025-08-10",
-        },
+        { doc: "Driver's License", expires: "2027-02-28" },
+        { doc: "Insurance Card", expires: "2026-11-20" },
+        { doc: "Certificate of Roadworthiness", expires: "2025-08-10" },
       ],
     },
     3: {
@@ -120,22 +106,10 @@ export default function DriverPage() {
       driving_since: 1999,
       insurance_policy_number: "INS-FCT-0034567",
       documents: [
-        {
-          doc: "Driver's License",
-          expires: "2024-12-01",
-        },
-        {
-          doc: "Vehicle Registration",
-          expires: "2026-03-01",
-        },
-        {
-          doc: "Insurance Card",
-          expires: "2025-09-30",
-        },
-        {
-          doc: "Vehicle License",
-          expires: "2025-10-15",
-        },
+        { doc: "Driver's License", expires: "2024-12-01" },
+        { doc: "Vehicle Registration", expires: "2026-03-01" },
+        { doc: "Insurance Card", expires: "2025-09-30" },
+        { doc: "Vehicle License", expires: "2025-10-15" },
       ],
     },
     4: {
@@ -168,22 +142,10 @@ export default function DriverPage() {
       driving_since: 2018,
       insurance_policy_number: "INS-RIV-0045678",
       documents: [
-        {
-          doc: "Driver's License",
-          expires: "2028-05-10",
-        },
-        {
-          doc: "Vehicle Registration",
-          expires: "2026-08-25",
-        },
-        {
-          doc: "Insurance Card",
-          expires: "2027-01-05",
-        },
-        {
-          doc: "Proof of Ownership",
-          expires: "2025-01-01",
-        },
+        { doc: "Driver's License", expires: "2028-05-10" },
+        { doc: "Vehicle Registration", expires: "2026-08-25" },
+        { doc: "Insurance Card", expires: "2027-01-05" },
+        { doc: "Proof of Ownership", expires: "2025-01-01" },
       ],
     },
     5: {
@@ -217,22 +179,10 @@ export default function DriverPage() {
       driving_since: 1988,
       insurance_policy_number: "INS-ENU-0056789",
       documents: [
-        {
-          doc: "Driver's License",
-          expires: "2026-04-20",
-        },
-        {
-          doc: "Insurance Card",
-          expires: "2025-12-05",
-        },
-        {
-          doc: "Certificate of Roadworthiness",
-          expires: "2026-04-20",
-        },
-        {
-          doc: "Vehicle License",
-          expires: "2026-04-20",
-        },
+        { doc: "Driver's License", expires: "2026-04-20" },
+        { doc: "Insurance Card", expires: "2025-12-05" },
+        { doc: "Certificate of Roadworthiness", expires: "2026-04-20" },
+        { doc: "Vehicle License", expires: "2026-04-20" },
       ],
     },
   };
@@ -252,21 +202,89 @@ export default function DriverPage() {
     setShowQrCode(true);
   };
   return (
-    <>
+    <main className="driver">
       {showQrCode && (
         <div className="qr-modal-overlay" onClick={() => setShowQrCode(false)}>
           <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setShowQrCode(false)}>
               <i className="fas fa-x"></i>
             </button>
-            <h2 className="text-xl font-bold mb-4">Scan to Share This Page</h2>
+            <h2 className="">Scan to Share This Page</h2>
             <img src={qrCodeUrl} alt="QR Code" className="mb-4" />
-            <p className="text-sm text-gray-600">URL: {window.location.href}</p>
           </div>
         </div>
       )}
-      <div>Driver ID: {driver.id}</div>
-      <button onClick={generateQrCode}>Generate Qr code</button>
-    </>
+      <div className="driver-top">
+        <Link href="/drivers">
+          {" "}
+          <i className="fas fa-arrow-left"></i>
+           Back
+        </Link>
+        <button onClick={generateQrCode}>Generate Qr code</button>
+      </div>
+      <div className="owner">
+        <div className="owner-top">
+          <h1>{driver.plate_number}</h1>
+          <div className="image">
+            {" "}
+            <img
+              src={`https://placehold.co/100x100/3b82f6/FFFFFF?text=${driver.first_name.charAt(
+                0
+              )}${driver.last_name.charAt(0)}`}
+              alt={`${driver.first_name} ${driver.last_name}`}
+            />
+          </div>
+        </div>
+        <div className="owner-body">
+
+          <div className="detail">
+            <h1 className="detail-left">Owner's Fullname</h1>
+            <h2 className="detail-left">
+              {driver.last_name} {driver.middle_name} {driver.first_name}
+            </h2>
+          </div>
+          <div className="detail">
+            <h1 className="detail-left">Chassis No</h1>
+            <h2 className="detail-left">{driver.chassis_number}</h2>
+          </div>
+          <div className="detail">
+            <h1 className="detail-left">Engine Number</h1>
+            <h2 className="detail-left plate">{driver.engine_number}</h2>
+          </div>
+          <div className="detail">
+            <h1 className="detail-left">Vehicle Model</h1>
+            <h2 className="detail-left plate">{driver.vehicle_model_year}</h2>
+          </div>
+          <div className="detail">
+            <h1 className="detail-left">Vehicle Make</h1>
+            <h2 className="detail-left plate">{driver.car}</h2>
+          </div>
+          <div className="detail">
+            <h1 className="detail-left">Last Service Date</h1>
+            <h2 className="detail-left">{driver.last_service_date}</h2>
+          </div>
+          {driver.documents.map((item) => {
+            return (
+              <div className="detail" key={item.doc}>
+                <h1 className="detail-left">{item.doc}</h1>
+                <h2 className="detail-left">{item.expires}</h2>
+              </div>
+            );
+          })}
+          {/* <div className="detail">
+              <h1 className="detail-left">Number Plate</h1>
+              <h2 className="detail-left plate">{driver.plate_number}</h2>
+            </div>
+            <div className="detail">
+              <h1 className="detail-left">Number Plate</h1>
+              <h2 className="detail-left plate">{driver.plate_number}</h2>
+            </div>
+            <div className="detail">
+              <h1 className="detail-left">Number Plate</h1>
+              <h2 className="detail-left plate">{driver.plate_number}</h2>
+            </div> */}
+        </div>
+      </div>
+    </main>
   );
 }
