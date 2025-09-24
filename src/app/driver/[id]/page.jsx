@@ -206,19 +206,19 @@ export default function DriverPage() {
       {showQrCode && (
         <div className="qr-modal-overlay" onClick={() => setShowQrCode(false)}>
           <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setShowQrCode(false)}>
-              <i className="fas fa-x"></i>
-            </button>
-            <h2 className="">Scan to Share This Page</h2>
+            <div className="top">
+              <h2 className="">{driver.first_name}'s Qrcode</h2>
+              <i className="fas fa-x" onClick={() => setShowQrCode(false)}></i>
+            </div>
             <img src={qrCodeUrl} alt="QR Code" className="mb-4" />
           </div>
         </div>
       )}
       <div className="driver-top">
-        <Link href="/drivers">
+        <Link href="/">
           {" "}
           <i className="fas fa-arrow-left"></i>
-           Back
+          Back
         </Link>
         <button onClick={generateQrCode}>Generate Qr code</button>
       </div>
@@ -236,7 +236,6 @@ export default function DriverPage() {
           </div>
         </div>
         <div className="owner-body">
-
           <div className="detail">
             <h1 className="detail-left">Owner's Fullname</h1>
             <h2 className="detail-left">

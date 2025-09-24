@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import QRious from "qrious";
-import Link from "next/link";
 const App = () => {
   // State to track if the PDF libraries are loaded
   const [isPdfLibsLoaded, setIsPdfLibsLoaded] = useState(false);
@@ -241,60 +240,67 @@ const App = () => {
 
   // Function to handle the PDF download for a specific driver's card
   const handleDownloadPdf = (driverId, driverName) => {
-    if (!window.html2canvas || !window.jspdf) {
-      setErrorMessage(
-        "The required PDF libraries are still loading. Please try again in a moment."
-      );
-      setShowErrorModal(true);
-      return;
-    }
+    const timer = setTimeout(() => {
+      if (!window.html2canvas || !window.jspdf) {
+        setErrorMessage(
+          "The required PDF libraries are still loading. Please try again in a moment."
+        );
+        setShowErrorModal(true);
+        return;
+      }
 
-    const cardElement = cardRefs.current[driverId];
-    try {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF("p", "mm", "a4");
-      const scale = 3;
+      const cardElement = cardRefs.current[driverId];
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF("p", "mm", "a4");
+        const scale = 3;
 
-      window
-        .html2canvas(cardElement, {
-          scale: scale,
-        })
-        .then((canvas) => {
-          const imgData = canvas.toDataURL("image/png");
-          const imgWidth = (cardElement.offsetWidth / scale) * 0.264583; // Convert pixels to mm
-          const imgHeight = (cardElement.offsetHeight / scale) * 0.264583; // Convert pixels to mm
-          const xPosition = (pdf.internal.pageSize.getWidth() - imgWidth) / 2;
-          const yPosition = (pdf.internal.pageSize.getHeight() - imgHeight) / 2;
+        window
+          .html2canvas(cardElement, {
+            scale: scale,
+          })
+          .then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const imgWidth = (cardElement.offsetWidth / scale) * 0.264583; // Convert pixels to mm
+            const imgHeight = (cardElement.offsetHeight / scale) * 0.264583; // Convert pixels to mm
+            const xPosition = (pdf.internal.pageSize.getWidth() - imgWidth) / 2;
+            const yPosition =
+              (pdf.internal.pageSize.getHeight() - imgHeight) / 2;
 
-          pdf.addImage(
-            imgData,
-            "PNG",
-            xPosition,
-            yPosition,
-            imgWidth,
-            imgHeight
-          );
-          pdf.save(`DriverCard_${driverName.replace(/\s/g, "")}.pdf`);
-        })
-        .catch((error) => {
-          console.error("Error generating PDF from card element:", error);
-          setErrorMessage(
-            "An error occurred while generating the PDF. Please check the console for details."
-          );
-          setShowErrorModal(true);
-        });
-    } catch (error) {
-      console.error(
-        "Failed to generate PDF. Is jspdf or html2canvas missing from the window object?",
-        error
-      );
-      setErrorMessage(
-        "Failed to generate the PDF. Please ensure all libraries have loaded and try again."
-      );
-      setShowErrorModal(true);
-    }
+            pdf.addImage(
+              imgData,
+              "PNG",
+              xPosition,
+              yPosition,
+              imgWidth,
+              imgHeight
+            );
+            pdf.save(`DriverCard_${driverName.replace(/\s/g, "")}.pdf`);
+          })
+          .catch((error) => {
+            console.error("Error generating PDF from card element:", error);
+            setErrorMessage(
+              "An error occurred while generating the PDF. Please check the console for details."
+            );
+            setShowErrorModal(true);
+          });
+      } catch (error) {
+        console.error(
+          "Failed to generate PDF. Is jspdf or html2canvas missing from the window object?",
+          error
+        );
+        setErrorMessage(
+          "Failed to generate the PDF. Please ensure all libraries have loaded and try again."
+        );
+        setShowErrorModal(true);
+      }
+    }, 1000);
+    return () => {
+      clearTimeout(timer);
+    };
   };
-  const [showQrCode, setShowQrCode] = useState(false);
+  const [button, setButton] = useState(true);
+  const [qrcode, setQrCode] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   // Function to handle QR code generation and modal display
   const handleGenerateQrCode = (driverId) => {
@@ -306,7 +312,6 @@ const App = () => {
       foreground: "black",
     });
     setQrCodeUrl(qr.toDataURL(driverId));
-    setShowQrCode(true);
   };
 
   return (
@@ -331,13 +336,23 @@ const App = () => {
                   alt={`${driver.first_name} ${driver.last_name}`}
                 />
               </div>
-              <h2 className="driver-name">{driver.plate_number}</h2>
+              <div className="profile-top-right">
+                {qrcode ? (
+                  <div className="hide"></div>
+                ) : (
+                  <a href={`driver/${driver.id}`} className="btn">
+                    {" "}
+                    <i className="fas fa-eye"></i>See More
+                  </a>
+                )}
+                <h2 className="driver-name">{driver.plate_number}</h2>
+              </div>
             </div>
 
             {/* Driver details */}
             <div className="profile-details">
               <p>
-                <strong>Fullname</strong>
+                <strong>Full Name</strong>
                 {driver.first_name} {driver.middle_name} {driver.last_name}
               </p>
               <p>
@@ -371,45 +386,53 @@ const App = () => {
 
             {/* Buttons */}
             <div className="actions">
-              <button
-                onClick={() =>
-                  handleDownloadPdf(
-                    driver.id,
-                    `${driver.first_name} ${driver.last_name}`
-                  )
-                }
-                className=""
-              >
-                <i className="fas fa-download"></i>
-                Get ID
-              </button>
-              <button
-                onClick={() => {
-                  handleGenerateQrCode(driver.id), setShowQrCode(true);
-                }}
-                className=""
-              >
-                <i className="fas fa-qrcode"></i>
-                QR Code
-              </button>
-              <a href={`driver/${driver.id}`} className="btn">
-                <i className="fas fa-eye"></i>See More
-              </a>
+              {qrcode ? (
+                <>
+                  {button ? (
+                    <button
+                      onClick={() => {
+                        setButton(false);
+                        handleDownloadPdf(
+                          driver.id,
+                          `${driver.first_name} ${driver.last_name}`
+                        );
+                      }}
+                      className=""
+                    >
+                      <i className="fas fa-download"></i>
+                      Get ID
+                    </button>
+                  ) : (
+                    <div></div>
+                  )}
+                </>
+              ) : (
+                <div className="hide"></div>
+              )}
+              {qrcode ? (
+                <div className="hide"></div>
+              ) : (
+                <button
+                  onClick={() => {
+                    handleGenerateQrCode(driver.id), setQrCode(true);
+                  }}
+                  className=""
+                >
+                  <i className="fas fa-qrcode"></i>
+                  QR Code
+                </button>
+              )}
+            </div>
+            <div className="qrcode">
+              {qrcode ? (
+                <img src={qrCodeUrl} alt="QR Code" className="mb-4" />
+              ) : (
+                <div className="hide"></div>
+              )}
             </div>
           </div>
         ))}
       </div>
-      {showQrCode && (
-        <div className="qr-modal-overlay" onClick={() => setShowQrCode(false)}>
-          <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setShowQrCode(false)}>
-              <i className="fas fa-x"></i>
-            </button>
-            <h2 className="text-xl font-bold mb-4">Scan to Share This Page</h2>
-            <img src={qrCodeUrl} alt="QR Code" className="mb-4" />
-          </div>
-        </div>
-      )}
       {/* Error Modal */}
       {showErrorModal && (
         <div className="modal-overlay">
