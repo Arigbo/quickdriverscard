@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import QRious from "qrious";
+import { useParams, usePathname } from "next/navigation";
 const App = () => {
   // State to track if the PDF libraries are loaded
   const [isPdfLibsLoaded, setIsPdfLibsLoaded] = useState(false);
@@ -299,12 +300,13 @@ const App = () => {
       clearTimeout(timer);
     };
   };
+  const path = usePathname();
   const [button, setButton] = useState(true);
   const [qrcode, setQrCode] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   // Function to handle QR code generation and modal display
   const handleGenerateQrCode = (driverId) => {
-    const url = `/drivers/${driverId}`;
+    const url = `${path}/drivers/${driverId}`;
     const qr = new QRious({
       value: url,
       size: 256,
@@ -340,7 +342,7 @@ const App = () => {
                 {qrcode ? (
                   <div className="hide"></div>
                 ) : (
-                  <a href={`driver/${driver.id}`} className="btn">
+                  <a href={`/driver/${driver.id}`} className="btn">
                     {" "}
                     <i className="fas fa-eye"></i>See More
                   </a>
