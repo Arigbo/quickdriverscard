@@ -1,6 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 export default function DriverPage() {
   const drivers = {
     1: {
@@ -194,6 +195,7 @@ export default function DriverPage() {
     expiry.setHours(0, 0, 0, 0);
     return expiry < today;
   };
+  const [currentDoc, setCurrentDoc] = useState();
   return (
     <main className="driver">
       <div className="driver-top">
@@ -248,55 +250,56 @@ export default function DriverPage() {
             const statusColor = expired ? "red" : "green";
             const statusText = expired ? "Expired" : "Valid";
             return (
-              <div className="detail" key={doc.doc}>
-                <h1 className="detail-left">{doc.doc}</h1>
-                <div className="detail-right">
-                  <span className={`font-semibold ${statusColor}`}>
-                    {statusText}
-                  </span>
-                  {expired ? (
-                    <svg
-                      className="w-4 h-4 red"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="w-4 h-4 green"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
+              <div className="doc" key={doc.doc}>
+                <div
+                  className="doc-inner"
+                  onClick={() =>
+                    setCurrentDoc(currentDoc?.doc === doc.doc ? null : doc)
+                  }
+                >
+                  <h1 className="doc-inner-left">{doc.doc} {currentDoc?<i className="fas fa-chevron-up"></i>:<i className="fas fa-chevron-down"></i>}</h1>
+                  <div className="doc-inner-right">
+                    <span className={`font-semibold ${statusColor}`}>
+                      {statusText}
+                    </span>
+                    {expired ? (
+                      <svg
+                        className="w-4 h-4 red"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-4 h-4 green"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
                 </div>
+                {currentDoc && currentDoc.doc === doc.doc && (
+                  <div className="doc-expires">
+                    <h1> Expires:</h1>
+                    <h2 className={`${statusColor}`}> {doc.expires}</h2>
+                  </div>
+                )}
               </div>
             );
           })}
-          {/* <div className="detail">
-              <h1 className="detail-left">Number Plate</h1>
-              <h2 className="detail-left plate">{driver.plate_number}</h2>
-            </div>
-            <div className="detail">
-              <h1 className="detail-left">Number Plate</h1>
-              <h2 className="detail-left plate">{driver.plate_number}</h2>
-            </div>
-            <div className="detail">
-              <h1 className="detail-left">Number Plate</h1>
-              <h2 className="detail-left plate">{driver.plate_number}</h2>
-            </div> */}
         </div>
       </div>
     </main>

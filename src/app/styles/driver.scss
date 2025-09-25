@@ -45,17 +45,56 @@
           font-size: 18px;
           font-weight: 600;
         }
-        &-right {
+      }
+      .doc {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-block: 1rem;
+        justify-content: center;
+        gap: 0.4rem;
+
+        h1,
+        h2 {
+          font-size: 18px;
+          font-weight: 600;
           display: flex;
           align-items: center;
-          .red {
-            color: red;
+          gap: 0.5rem;
+        }
+        i {
+          font-size: 12px;
+        }
+        .red {
+          color: red;
+        }
+        .green {
+          color: green;
+        }
+        &-inner {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid;
+          &-right {
+            display: flex;
+            align-items: center;
+            svg {
+              width: 1rem;
+            }
           }
-          .green {
-            color: green;
-          }
-          svg {
-            width: 1rem;
+        }
+        &-expires {
+          display: flex;
+          width: 100%;
+          padding-inline: 1rem;
+          align-items: center;
+          justify-content: space-between;
+          h1,
+          h2 {
+            font-size: 16px;
           }
         }
       }
