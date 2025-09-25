@@ -306,7 +306,7 @@ const App = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   // Function to handle QR code generation and modal display
   const handleGenerateQrCode = (driverId) => {
-    const url = `${path}/drivers/${driverId}`;
+    const url = `https://quickdriverscard.vercel.app/driver/${driverId}`;
     const qr = new QRious({
       value: url,
       size: 256,
