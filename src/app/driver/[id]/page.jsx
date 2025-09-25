@@ -257,7 +257,7 @@ export default function DriverPage() {
                     setCurrentDoc(currentDoc?.doc === doc.doc ? null : doc)
                   }
                 >
-                  <h1 className="doc-inner-left">{doc.doc} {currentDoc?<i className="fas fa-chevron-up"></i>:<i className="fas fa-chevron-down"></i>}</h1>
+                  <h1 className="doc-inner-left">{doc.doc} {currentDoc?.doc === doc.doc ?<i className="fas fa-chevron-up"></i>:<i className="fas fa-chevron-down"></i>}</h1>
                   <div className="doc-inner-right">
                     <span className={`font-semibold ${statusColor}`}>
                       {statusText}
