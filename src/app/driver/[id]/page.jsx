@@ -1,8 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import Link from "next/link";
-import QRious from "qrious";
 export default function DriverPage() {
   const drivers = {
     1: {
@@ -186,41 +184,24 @@ export default function DriverPage() {
       ],
     },
   };
-  const [showQrCode, setShowQrCode] = useState(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
   const { id } = useParams();
   const driver = drivers[id];
-  const generateQrCode = () => {
-    const url = window.location.href;
-    const qr = new QRious({
-      value: url,
-      size: 256,
-      background: "white",
-      foreground: "black",
-    });
-    setQrCodeUrl(qr.toDataURL());
-    setShowQrCode(true);
+  const isExpired = (expiryDate) => {
+    const today = new Date(); // Using the current date
+    const expiry = new Date(expiryDate);
+    // Set both dates to start of day for accurate comparison
+    today.setHours(0, 0, 0, 0);
+    expiry.setHours(0, 0, 0, 0);
+    return expiry < today;
   };
   return (
     <main className="driver">
-      {showQrCode && (
-        <div className="qr-modal-overlay" onClick={() => setShowQrCode(false)}>
-          <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="top">
-              <h2 className="">{driver.first_name}'s Qrcode</h2>
-              <i className="fas fa-x" onClick={() => setShowQrCode(false)}></i>
-            </div>
-            <img src={qrCodeUrl} alt="QR Code" className="mb-4" />
-          </div>
-        </div>
-      )}
       <div className="driver-top">
         <Link href="/">
           {" "}
-          <i className="fas fa-arrow-left"></i>
-          Back
+          <i className="fas fa-home"></i>
+          Home
         </Link>
-        <button onClick={generateQrCode}>Generate Qr code</button>
       </div>
       <div className="owner">
         <div className="owner-top">
@@ -262,11 +243,45 @@ export default function DriverPage() {
             <h1 className="detail-left">Last Service Date</h1>
             <h2 className="detail-left">{driver.last_service_date}</h2>
           </div>
-          {driver.documents.map((item) => {
+          {driver.documents.map((doc) => {
+            const expired = isExpired(doc.expires);
+            const statusColor = expired ? "red" : "green";
+            const statusText = expired ? "Expired" : "Valid";
             return (
-              <div className="detail" key={item.doc}>
-                <h1 className="detail-left">{item.doc}</h1>
-                <h2 className="detail-left">{item.expires}</h2>
+              <div className="detail" key={doc.doc}>
+                <h1 className="detail-left">{doc.doc}</h1>
+                <div className="detail-right">
+                  <span className={`font-semibold ${statusColor}`}>
+                    {statusText}
+                  </span>
+                  {expired ? (
+                    <svg
+                      className="w-4 h-4 red"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4 green"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </div>
               </div>
             );
           })}
