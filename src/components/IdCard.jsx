@@ -60,3 +60,23 @@ export default function IdCard({ driver, ref }) {
     </div>
   );
 }
+
+export function IdCardBack({ driver }) {
+  return (
+    <div className="idcard idcard--back">
+      <div className="idcard-stripe" />
+      <div className="idcard-back-body">
+        <LogoMark size={28} />
+        <p className="idcard-back-title">Quick Drivers Card</p>
+        <p className="idcard-back-text">
+          This card identifies the holder as a registered driver. Scan the code
+          on the front to verify the record and document status.
+        </p>
+      </div>
+      <div className="idcard-head idcard-back-foot">
+        <span>If found, return to any registry office</span>
+        <span className="idcard-no">{cardNumber(driver)}</span>
+      </div>
+    </div>
+  );
+}

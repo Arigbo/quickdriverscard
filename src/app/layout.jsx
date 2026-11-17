@@ -1,4 +1,5 @@
 import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
+import Providers from "@/components/motion/Providers";
 import "@/styles/main.scss";
 
 // Self-hosted via next/font so fonts are same-origin (needed to embed them
@@ -29,7 +30,9 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

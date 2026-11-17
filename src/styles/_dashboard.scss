@@ -162,9 +162,9 @@
   max-width: 100%;
 
   button {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
     height: 36px;
     padding: 0 14px;
     border-radius: 999px;
@@ -178,11 +178,24 @@
     }
 
     &.is-active {
-      background: var(--surface);
       color: var(--ink);
-      box-shadow: 0 1px 2px rgba(17, 17, 16, 0.06);
     }
   }
+}
+
+.segmented-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(17, 17, 16, 0.08), 0 4px 12px -4px rgba(17, 17, 16, 0.08);
+}
+
+.segmented-text {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .segmented-count {
@@ -226,7 +239,13 @@
 
     .row-chevron {
       color: var(--ink);
-      transform: translateX(2px);
+      transform: translateX(4px);
+    }
+
+    .avatar {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--bg);
     }
   }
 
@@ -252,6 +271,10 @@
   .cell-muted {
     margin-top: 2px;
   }
+}
+
+.cell-driver .avatar {
+  transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
 }
 
 .cell-driver {

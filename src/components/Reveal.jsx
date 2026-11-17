@@ -1,9 +1,5 @@
 "use client";
-import { motion, MotionConfig } from "framer-motion";
-
-export function MotionRoot({ children }) {
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
-}
+import { motion } from "framer-motion";
 
 // Quiet fade-up on first view. Disabled automatically for reduced motion.
 export default function Reveal({ children, delay = 0, as = "div", className }) {

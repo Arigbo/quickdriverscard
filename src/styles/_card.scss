@@ -12,15 +12,6 @@
   box-shadow: 0 1px 2px rgba(17, 17, 16, 0.04),
     0 12px 32px -8px rgba(17, 17, 16, 0.1),
     0 40px 80px -24px rgba(17, 17, 16, 0.12);
-
-  &--tilt {
-    transform: rotate(-3deg);
-    transition: transform 0.8s var(--ease);
-
-    &:hover {
-      transform: rotate(0deg) translateY(-4px);
-    }
-  }
 }
 
 .idcard-export {
@@ -168,4 +159,56 @@
     text-transform: uppercase;
     color: #9a9993;
   }
+}
+
+/* Back face */
+.idcard--back {
+  background: #111110;
+  border-color: #111110;
+  color: #f7f7f4;
+  padding: 0;
+  --logo-fg: #111110;
+
+  .idcard-head {
+    color: rgba(247, 247, 244, 0.5);
+  }
+}
+
+.idcard-stripe {
+  height: 3.4em;
+  margin-top: 2.2em;
+  background: #2a2a28;
+}
+
+.idcard-back-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6em;
+  padding: 0 2.2em;
+
+  svg {
+    width: 2.4em;
+    height: 2.4em;
+    color: #f7f7f4;
+    margin-bottom: 0.4em;
+  }
+}
+
+.idcard-back-title {
+  font-family: var(--serif);
+  font-size: 2em;
+  line-height: 1;
+}
+
+.idcard-back-text {
+  font-size: 0.9em;
+  line-height: 1.5;
+  max-width: 30em;
+  color: rgba(247, 247, 244, 0.6);
+}
+
+.idcard-back-foot {
+  padding: 0 2.2em 2em;
 }

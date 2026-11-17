@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Phone } from "lucide-react";
 import Logo from "@/components/Logo";
 import StatusBadge from "@/components/StatusBadge";
+import Reveal from "@/components/Reveal";
+import Scramble from "@/components/motion/Scramble";
+import Magnetic from "@/components/motion/Magnetic";
 import {
   cardNumber,
   docStatus,
@@ -68,15 +71,17 @@ export default async function VerifyPage({ params }) {
       <VerifyTop />
 
       <section className="verify-hero">
-        <div className={`verify-status verify-status--${status}`}>
-          <span className="badge-dot" aria-hidden="true" />
+        <Reveal delay={1.0} className={`verify-status verify-status--${status}`}>
+          <span className="badge-dot badge-dot--pulse" aria-hidden="true" />
           {SUMMARY[status](flagged)}
-        </div>
+        </Reveal>
 
-        <p className="verify-label">Plate number</p>
-        <p className="verify-plate mono">{driver.plate_number}</p>
+        <Reveal as="p" className="verify-label">Plate number</Reveal>
+        <p className="verify-plate mono">
+          <Scramble text={driver.plate_number} delay={250} />
+        </p>
 
-        <div className="verify-person">
+        <Reveal delay={0.7} className="verify-person">
           <span className="avatar avatar--lg">{initials(driver)}</span>
           <div>
             <h1 className="verify-name">{fullName(driver)}</h1>
@@ -84,10 +89,10 @@ export default async function VerifyPage({ params }) {
               <span className="mono">{cardNumber(driver)}</span> · Checked {checkedAt}
             </p>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      <section className="verify-section">
+      <Reveal as="section" delay={1.15} className="verify-section">
         <h2 className="drawer-label">Documents</h2>
         <ul className="doc-list">
           {docs.map((doc) => (
@@ -102,9 +107,9 @@ export default async function VerifyPage({ params }) {
             </li>
           ))}
         </ul>
-      </section>
+      </Reveal>
 
-      <section className="verify-section">
+      <Reveal as="section" className="verify-section">
         <h2 className="drawer-label">Vehicle</h2>
         <dl className="kv">
           <KV k="Make" v={driver.car} />
@@ -113,9 +118,9 @@ export default async function VerifyPage({ params }) {
           <KV k="Chassis no." v={driver.chassis_number} mono />
           <KV k="Last service" v={formatDate(driver.last_service_date)} />
         </dl>
-      </section>
+      </Reveal>
 
-      <section className="verify-section">
+      <Reveal as="section" className="verify-section">
         <h2 className="drawer-label">In case of emergency</h2>
         <div className="emergency">
           <div>
@@ -124,14 +129,16 @@ export default async function VerifyPage({ params }) {
               {driver.relationship_to_driver} · <span className="mono">{driver.emergency_phone_number}</span>
             </p>
           </div>
-          <a
-            href={`tel:${driver.emergency_phone_number.replace(/\s/g, "")}`}
-            className="btn btn--primary btn--sm"
-          >
-            <Phone size={15} strokeWidth={1.75} /> Call
-          </a>
+          <Magnetic>
+            <a
+              href={`tel:${driver.emergency_phone_number.replace(/\s/g, "")}`}
+              className="btn btn--primary btn--sm"
+            >
+              <Phone size={15} strokeWidth={1.75} /> Call
+            </a>
+          </Magnetic>
         </div>
-      </section>
+      </Reveal>
 
       <footer className="verify-foot">
         <Logo />

@@ -1,10 +1,13 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, ChevronRight, Search } from "lucide-react";
 import Logo from "@/components/Logo";
 import StatusBadge from "@/components/StatusBadge";
 import DriverDrawer from "./DriverDrawer";
+import CountUp from "@/components/motion/CountUp";
+import SplitReveal from "@/components/motion/SplitReveal";
 import {
   cardNumber,
   docStatus,
@@ -14,6 +17,8 @@ import {
   initials,
   shortName,
 } from "@/data/drivers";
+
+const ease = [0.22, 1, 0.36, 1];
 
 const FILTERS = [
   { key: "all", label: "All" },
@@ -26,6 +31,12 @@ export default function Dashboard({ drivers }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
+  // After the first entrance, rows animate quickly on filter changes.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
 
   const rows = useMemo(
     () => drivers.map((d) => ({ ...d, status: driverStatus(d) })),
@@ -85,28 +96,41 @@ export default function Dashboard({ drivers }) {
 
       <main className="container app-main">
         <div className="page-head">
-          <p className="eyebrow eyebrow--plain" suppressHydrationWarning>
+          <motion.p
+            className="eyebrow eyebrow--plain"
+            suppressHydrationWarning
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease }}
+          >
             {today}
-          </p>
-          <h1 className="page-title">Drivers</h1>
+          </motion.p>
+          <SplitReveal className="page-title" lines={[["Drivers"]]} delay={0.05} />
         </div>
 
         <dl className="stats">
-          <Stat label="Registered drivers" value={stats.drivers} />
-          <Stat label="Documents on file" value={stats.documents} />
+          <Stat i={0} label="Registered drivers" value={stats.drivers} />
+          <Stat i={1} label="Documents on file" value={stats.documents} />
           <Stat
+            i={2}
             label={`Expiring within ${EXPIRING_WINDOW_DAYS} days`}
             value={stats.expiring}
             tone={stats.expiring ? "expiring" : undefined}
           />
           <Stat
+            i={3}
             label="Expired"
             value={stats.expired}
             tone={stats.expired ? "expired" : undefined}
           />
         </dl>
 
-        <div className="toolbar">
+        <motion.div
+          className="toolbar"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5, ease }}
+        >
           <label className="search">
             <Search size={16} strokeWidth={1.75} aria-hidden="true" />
             <input
@@ -125,12 +149,21 @@ export default function Dashboard({ drivers }) {
                 className={filter === f.key ? "is-active" : ""}
                 onClick={() => setFilter(f.key)}
               >
-                {f.label}
-                <span className="segmented-count">{counts[f.key]}</span>
+                {filter === f.key && (
+                  <motion.span
+                    layoutId="segmented-pill"
+                    className="segmented-pill"
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  />
+                )}
+                <span className="segmented-text">
+                  {f.label}
+                  <span className="segmented-count">{counts[f.key]}</span>
+                </span>
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         <div className="table">
           <div className="table-row table-row--head" aria-hidden="true">
@@ -142,13 +175,19 @@ export default function Dashboard({ drivers }) {
             <span aria-hidden="true" />
           </div>
 
-          {visible.map((d) => (
-            <button
+          <AnimatePresence mode="popLayout" initial={false}>
+          {visible.map((d, i) => (
+            <motion.button
               key={d.id}
-             
+              layout
               className="table-row"
               onClick={() => setSelectedId(d.id)}
               aria-label={`Open ${shortName(d)}`}
+              data-cursor="Open"
+              initial={mounted ? { opacity: 0, scale: 0.98 } : { opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, delay: mounted ? 0 : 0.6 + i * 0.06, ease } }}
+              exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }}
+              transition={{ layout: { type: "spring", stiffness: 380, damping: 36 } }}
             >
               <span className="cell-driver">
                 <span className="avatar">{initials(d)}</span>
@@ -175,8 +214,9 @@ export default function Dashboard({ drivers }) {
                 <StatusBadge status={d.status} />
               </span>
               <ChevronRight size={16} strokeWidth={1.5} className="row-chevron" aria-hidden="true" />
-            </button>
+            </motion.button>
           ))}
+          </AnimatePresence>
 
           {visible.length === 0 && (
             <div className="empty">
@@ -194,11 +234,18 @@ export default function Dashboard({ drivers }) {
   );
 }
 
-function Stat({ label, value, tone }) {
+function Stat({ label, value, tone, i }) {
   return (
-    <div className="stat">
+    <motion.div
+      className="stat"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.9, delay: 0.2 + i * 0.08, ease }}
+    >
       <dt>{label}</dt>
-      <dd className={tone ? `tone--${tone}` : undefined}>{value}</dd>
-    </div>
+      <dd className={tone ? `tone--${tone}` : undefined}>
+        <CountUp value={value} delay={0.3 + i * 0.08} />
+      </dd>
+    </motion.div>
   );
 }

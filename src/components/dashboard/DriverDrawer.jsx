@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Check, Download, Link2, X } from "lucide-react";
 import IdCard from "@/components/IdCard";
+import TiltCard from "@/components/motion/TiltCard";
 import StatusBadge from "@/components/StatusBadge";
 import { downloadCardPdf } from "@/lib/downloadCard";
 import {
@@ -13,6 +14,12 @@ import {
   fullName,
   relativeDays,
 } from "@/data/drivers";
+
+const ease = [0.22, 1, 0.36, 1];
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
+};
 
 export default function DriverDrawer({ driver, onClose }) {
   return (
@@ -72,6 +79,7 @@ function Panel({ driver, onClose }) {
     <>
       <motion.div
         className="scrim"
+        data-lenis-prevent
         onClick={onClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -100,12 +108,28 @@ function Panel({ driver, onClose }) {
           </button>
         </div>
 
-        <div className="drawer-body">
-          <div className="idcard-frame">
-            <IdCard driver={driver} ref={cardRef} />
-          </div>
+        <motion.div
+          className="drawer-body"
+          data-lenis-prevent
+          initial="hidden"
+          animate="show"
+          variants={{ show: { transition: { staggerChildren: 0.07, delayChildren: 0.3 } } }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 40, rotateX: 30 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ duration: 0.9, delay: 0.15, ease }}
+            style={{ transformPerspective: 1000 }}
+          >
+            <TiltCard
+              className="idcard-frame"
+              float={false}
+              max={10}
+              front={<IdCard driver={driver} ref={cardRef} />}
+            />
+          </motion.div>
 
-          <div className="drawer-actions">
+          <motion.div className="drawer-actions" variants={item}>
             <button className="btn btn--primary" onClick={handleDownload} disabled={busy}>
               <Download size={16} strokeWidth={1.75} />
               {busy ? "Preparing…" : "Download card"}
@@ -116,10 +140,10 @@ function Panel({ driver, onClose }) {
             <button className="icon-btn icon-btn--bordered" onClick={handleCopy} aria-label="Copy verification link">
               {copied ? <Check size={16} strokeWidth={1.75} /> : <Link2 size={16} strokeWidth={1.75} />}
             </button>
-          </div>
+          </motion.div>
           {error && <p className="form-error" role="alert">{error}</p>}
 
-          <section className="drawer-section">
+          <motion.section className="drawer-section" variants={item}>
             <h3 className="drawer-label">Documents</h3>
             <ul className="doc-list">
               {driver.documents.map((doc) => {
@@ -137,9 +161,9 @@ function Panel({ driver, onClose }) {
                 );
               })}
             </ul>
-          </section>
+          </motion.section>
 
-          <section className="drawer-section">
+          <motion.section className="drawer-section" variants={item}>
             <h3 className="drawer-label">Driver</h3>
             <dl className="kv">
               <KV k="Date of birth" v={formatDate(driver.date_of_birth)} />
@@ -149,9 +173,9 @@ function Panel({ driver, onClose }) {
               <KV k="Address" v={driver.house_address} />
               <KV k="State / LGA" v={`${driver.state} · ${driver.lga}`} />
             </dl>
-          </section>
+          </motion.section>
 
-          <section className="drawer-section">
+          <motion.section className="drawer-section" variants={item}>
             <h3 className="drawer-label">Vehicle</h3>
             <dl className="kv">
               <KV k="Make" v={`${driver.car} (${driver.vehicle_model_year})`} />
@@ -162,16 +186,16 @@ function Panel({ driver, onClose }) {
               <KV k="Vendor" v={driver.vendor_of_the_vehicle} />
               <KV k="Last service" v={formatDate(driver.last_service_date)} />
             </dl>
-          </section>
+          </motion.section>
 
-          <section className="drawer-section">
+          <motion.section className="drawer-section" variants={item}>
             <h3 className="drawer-label">Emergency contact</h3>
             <dl className="kv">
               <KV k="Name" v={`${driver.emergency_contact_name} (${driver.relationship_to_driver})`} />
               <KV k="Phone" v={driver.emergency_phone_number} mono />
             </dl>
-          </section>
-        </div>
+          </motion.section>
+        </motion.div>
       </motion.aside>
     </>
   );

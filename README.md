@@ -17,7 +17,7 @@ CR80 PDF (85.6 × 53.98 mm), open their verification page, or copy its link.
 ## Stack
 
 Next.js 15 (App Router) · React 19 · Sass · Framer Motion · lucide-react ·
-QRious (QR codes) · html-to-image + jsPDF (card export)
+QRious (QR codes) · html-to-image + jsPDF (card export) · Lenis (smooth scroll)
 
 ## Design
 
@@ -28,6 +28,30 @@ QRious (QR codes) · html-to-image + jsPDF (card export)
 - The ID card is sized in `em`, and its base font-size is tied to its
   container width (`cqw`). It renders the same at any size, including the off-screen
   copy that is used for export.
+
+## Motion
+
+Motion components live in `src/components/motion/`. All of them respect `prefers-reduced-motion`.
+
+- **Smooth scroll:** Lenis inertial scrolling. Scrollable overlays opt out with `data-lenis-prevent`.
+- **Cursor:** a dot plus a lagging ring that grows over interactive elements. It shows a label for `data-cursor="Label"`. Only on mouse and trackpad devices.
+- **Magnetic buttons:** `<Magnetic>` pulls its child toward the pointer.
+- **3D card:** `<TiltCard>` tilts toward the pointer with moving light, floats when idle, and flips to a back face on click.
+- **Scroll effects:**
+  - hero parallax
+  - a pinned section where a deck of cards fans out in 3D
+  - text that lights up word by word (`<ScrubText>`)
+  - a marquee whose speed follows scroll velocity
+  - a phone mock-up that stands up in 3D and runs a scan
+  - a scroll progress bar
+  - a nav that hides on scroll down
+- **Details:**
+  - word-by-word headline reveals
+  - count-up stats
+  - a sliding filter pill and animated row reflow
+  - a plate number that decodes like a scanner
+  - a pulsing status dot
+  - a dot-grid light that follows the cursor
 
 ## Data
 
