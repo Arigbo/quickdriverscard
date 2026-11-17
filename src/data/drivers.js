@@ -1,6 +1,7 @@
 // Demo data for the portfolio build.
-// Document expiry dates are stored as day offsets from "today" so the demo
-// always shows a realistic mix of valid, expiring and expired documents.
+// Each seed document stores its current expiry as a day offset from "today"
+// (so the demo always shows a realistic mix of statuses); earlier versions are
+// generated from it as the document's history.
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -10,7 +11,7 @@ function fromToday(days) {
   return new Date(d.getTime() + days * DAY).toISOString().slice(0, 10);
 }
 
-const raw = [
+const seed = [
   {
     id: 1,
     first_name: "James",
@@ -259,6 +260,35 @@ const raw = [
 
 export const EXPIRING_WINDOW_DAYS = 60;
 
+export const DOCUMENT_TYPES = [
+  { type: "Driver's Licence", prefix: "DL", years: 5 },
+  { type: "Vehicle Registration", prefix: "VR", years: 1 },
+  { type: "Insurance Certificate", prefix: "IC", years: 1 },
+  { type: "Roadworthiness Certificate", prefix: "RW", years: 1 },
+  { type: "Vehicle Licence", prefix: "VL", years: 1 },
+  { type: "Proof of Ownership", prefix: "PO", years: 5 },
+];
+
+const typeInfo = (type) =>
+  DOCUMENT_TYPES.find((t) => t.type === type) ?? { type, prefix: "DOC", years: 1 };
+
+/* ---------- Dates ---------- */
+
+function toISO(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+export function addYears(iso, years) {
+  const d = new Date(iso + "T00:00:00Z");
+  d.setUTCFullYear(d.getUTCFullYear() + years);
+  return toISO(d);
+}
+
+export function addDays(iso, days) {
+  const d = new Date(iso + "T00:00:00Z");
+  return toISO(new Date(d.getTime() + days * DAY));
+}
+
 export function daysUntil(isoDate) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -266,32 +296,8 @@ export function daysUntil(isoDate) {
   return Math.round((target - today) / DAY);
 }
 
-export function docStatus(isoDate) {
-  const days = daysUntil(isoDate);
-  if (days < 0) return "expired";
-  if (days <= EXPIRING_WINDOW_DAYS) return "expiring";
-  return "valid";
-}
-
-export function driverStatus(driver) {
-  const statuses = driver.documents.map((d) => docStatus(d.expires));
-  if (statuses.includes("expired")) return "expired";
-  if (statuses.includes("expiring")) return "expiring";
-  return "valid";
-}
-
-export const STATUS_LABEL = {
-  valid: "Valid",
-  expiring: "Expiring soon",
-  expired: "Expired",
-};
-
-export const fullName = (d) => `${d.first_name} ${d.middle_name} ${d.last_name}`;
-export const shortName = (d) => `${d.first_name} ${d.last_name}`;
-export const initials = (d) => `${d.first_name[0]}${d.last_name[0]}`;
-export const cardNumber = (d) => `QDC-${String(d.id).padStart(4, "0")}`;
-
 export function formatDate(isoDate) {
+  if (!isoDate) return "—";
   return new Date(isoDate + "T00:00:00").toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -307,14 +313,129 @@ export function relativeDays(isoDate) {
   return ago === 1 ? "1 day ago" : `${ago} days ago`;
 }
 
-export function getDrivers() {
-  return raw.map((d) => ({
-    ...d,
-    documents: d.documents.map(({ doc, in: days }) => ({
-      doc,
-      expires: fromToday(days),
-    })),
+/* ---------- Status ---------- */
+
+export function docStatus(isoDate) {
+  const days = daysUntil(isoDate);
+  if (days < 0) return "expired";
+  if (days <= EXPIRING_WINDOW_DAYS) return "expiring";
+  return "valid";
+}
+
+// Status of any version: the current one is valid/expiring/expired; an older
+// one either ran out ("lapsed") or was replaced before it did.
+export function versionStatus(doc, version) {
+  if (version.id === doc.versions[0].id) return docStatus(version.expires);
+  return daysUntil(version.expires) < 0 ? "lapsed" : "replaced";
+}
+
+export function driverStatus(driver) {
+  if (!driver.documents.length) return "none";
+  const statuses = driver.documents.map((d) => docStatus(d.expires));
+  if (statuses.includes("expired")) return "expired";
+  if (statuses.includes("expiring")) return "expiring";
+  return "valid";
+}
+
+export const STATUS_LABEL = {
+  valid: "Valid",
+  expiring: "Expiring soon",
+  expired: "Expired",
+  none: "No documents",
+  lapsed: "Expired",
+  replaced: "Replaced",
+};
+
+/* ---------- Names ---------- */
+
+export const fullName = (d) =>
+  [d.first_name, d.middle_name, d.last_name].filter(Boolean).join(" ");
+export const shortName = (d) => [d.first_name, d.last_name].filter(Boolean).join(" ");
+export const initials = (d) =>
+  `${d.first_name?.[0] ?? ""}${d.last_name?.[0] ?? ""}`.toUpperCase();
+export const cardNumber = (d) => `QDC-${String(d.id).padStart(4, "0")}`;
+
+/* ---------- Assembly ---------- */
+
+// Group versions by document type, newest first. `expires` on each document
+// mirrors its current (latest) version so status checks stay simple.
+export function buildDocuments(versions) {
+  const byType = new Map();
+  for (const v of versions) {
+    if (!byType.has(v.type)) byType.set(v.type, []);
+    byType.get(v.type).push(v);
+  }
+  return [...byType.entries()].map(([type, list]) => {
+    const sorted = [...list].sort((a, b) =>
+      a.issued === b.issued
+        ? (b.uploadedAt ?? "").localeCompare(a.uploadedAt ?? "")
+        : b.issued.localeCompare(a.issued)
+    );
+    return { type, versions: sorted, expires: sorted[0].expires };
+  });
+}
+
+function docNumber(driver, prefix, k) {
+  const state = driver.state.replace(/[^A-Z]/gi, "").slice(0, 3).toUpperCase();
+  const n = ((driver.id * 7919 + [...prefix].reduce((a, c) => a * 31 + c.charCodeAt(0), 0) * 131 + k * 977) % 900000) + 100000;
+  return `${prefix}-${state}-${n}`;
+}
+
+function seedVersions(driver) {
+  const out = [];
+  driver.documents.forEach(({ doc, in: days }, ti) => {
+    const { prefix, years } = typeInfo(doc);
+    // Longer-serving drivers have more renewals on record.
+    const history = years >= 5 ? 1 : 2 + ((driver.id + ti) % 2);
+    let expires = fromToday(days);
+    let issued = addYears(expires, -years);
+    for (let k = 0; k <= history; k++) {
+      out.push({
+        id: `s-${driver.id}-${ti}-${k}`,
+        driverId: driver.id,
+        type: doc,
+        number: docNumber(driver, prefix, k),
+        issued,
+        expires,
+        file: null,
+        source: "seed",
+      });
+      // Each earlier version expired the day before its successor was issued.
+      expires = addDays(issued, -1);
+      issued = addYears(expires, -years);
+    }
+  });
+  return out;
+}
+
+// Combine driver records with their document versions (seed + any uploads).
+export function assemble(records, versions) {
+  const byDriver = new Map();
+  for (const v of versions) {
+    const key = String(v.driverId);
+    if (!byDriver.has(key)) byDriver.set(key, []);
+    byDriver.get(key).push(v);
+  }
+  return records.map((r) => ({
+    ...r,
+    documents: buildDocuments(byDriver.get(String(r.id)) ?? []),
   }));
+}
+
+export function getSeedRecords() {
+  return seed.map((d) => {
+    const record = { ...d, source: "seed" };
+    delete record.documents;
+    return record;
+  });
+}
+
+export function getSeedVersions() {
+  return seed.flatMap(seedVersions);
+}
+
+export function getDrivers() {
+  return assemble(getSeedRecords(), getSeedVersions());
 }
 
 export function getDriver(id) {

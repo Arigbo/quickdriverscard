@@ -1,5 +1,6 @@
 import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import Providers from "@/components/motion/Providers";
+import { SITE } from "@/lib/site";
 import "@/styles/main.scss";
 
 // Self-hosted via next/font so fonts are same-origin (needed to embed them
@@ -18,13 +19,40 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Quick Drivers Card — Driver identity, verified in one scan",
-  description:
-    "Issue printable driver ID cards with QR codes. Anyone can scan to verify a driver and the status of their vehicle documents.",
+  metadataBase: new URL(SITE.url),
+  title: { default: SITE.title, template: `%s · ${SITE.name}` },
+  description: SITE.description,
+  applicationName: SITE.name,
+  keywords: SITE.keywords,
+  category: "business",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    title: SITE.title,
+    description: SITE.description,
+    url: "/",
+    locale: SITE.locale,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.title,
+    description: SITE.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
+  formatDetection: { telephone: false, email: false, address: false },
+  appleWebApp: { capable: true, title: SITE.name, statusBarStyle: "default" },
 };
 
 export const viewport = {
-  themeColor: "#f7f7f4",
+  themeColor: SITE.themeColor,
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }) {

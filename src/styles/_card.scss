@@ -100,6 +100,13 @@
   font-weight: 500;
   color: #5c5b56;
   flex: none;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .idcard-name {

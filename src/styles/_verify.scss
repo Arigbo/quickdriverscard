@@ -46,6 +46,11 @@
     color: var(--expired);
     background: var(--expired-bg);
   }
+
+  &--none {
+    color: var(--ink-2);
+    background: var(--hover);
+  }
 }
 
 .verify-label {
@@ -113,4 +118,24 @@
   align-items: flex-start;
   gap: 24px;
   padding: clamp(80px, 18vh, 180px) 0;
+}
+
+.verify-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+
+  .cell-muted {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+}
+
+.verify-loading {
+  height: 60vh;
+  margin-top: 48px;
+  border-radius: 16px;
+  background: linear-gradient(100deg, var(--hover) 30%, var(--bg) 50%, var(--hover) 70%) 0 0 / 300% 100%;
+  animation: shimmer 1.4s linear infinite;
 }
