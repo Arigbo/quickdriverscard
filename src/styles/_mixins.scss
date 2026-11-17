@@ -1,0 +1,15 @@
+$sm: 640px;
+$md: 900px;
+$lg: 1100px;
+
+@mixin below($bp) {
+  @media (max-width: ($bp - 1px)) {
+    @content;
+  }
+}
+
+@mixin above($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}

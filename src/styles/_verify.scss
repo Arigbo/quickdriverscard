@@ -1,0 +1,116 @@
+@use "mixins" as *;
+
+.verify {
+  max-width: calc(600px + var(--gutter) * 2);
+  margin-inline: auto;
+  padding: 0 var(--gutter) 64px;
+}
+
+.verify-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+}
+
+.verify-hero {
+  padding: clamp(48px, 10vh, 96px) 0 clamp(56px, 9vh, 88px);
+}
+
+.verify-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: clamp(48px, 8vh, 72px);
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  &--valid {
+    color: var(--valid);
+    background: var(--valid-bg);
+  }
+
+  &--expiring {
+    color: var(--expiring);
+    background: var(--expiring-bg);
+  }
+
+  &--expired {
+    color: var(--expired);
+    background: var(--expired-bg);
+  }
+}
+
+.verify-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.verify-plate {
+  font-size: clamp(40px, 11vw, 64px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-top: 6px;
+}
+
+.verify-person {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.verify-name {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(26px, 6vw, 34px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin-bottom: 4px;
+}
+
+.verify-section {
+  margin-bottom: 64px;
+}
+
+.emergency {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.verify-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+
+  p {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+}
+
+.verify-missing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  padding: clamp(80px, 18vh, 180px) 0;
+}

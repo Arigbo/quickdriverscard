@@ -1,0 +1,171 @@
+// The ID card. Sized in `em`, with a base font-size tied to the card's
+// container width (cqw) so it scales cleanly and exports identically.
+
+.idcard-frame,
+.idcard-export {
+  container-type: inline-size;
+  width: 100%;
+}
+
+.idcard-frame {
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(17, 17, 16, 0.04),
+    0 12px 32px -8px rgba(17, 17, 16, 0.1),
+    0 40px 80px -24px rgba(17, 17, 16, 0.12);
+
+  &--tilt {
+    transform: rotate(-3deg);
+    transition: transform 0.8s var(--ease);
+
+    &:hover {
+      transform: rotate(0deg) translateY(-4px);
+    }
+  }
+}
+
+.idcard-export {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  pointer-events: none;
+}
+
+.idcard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 85.6 / 53.98;
+  font-size: 2.55cqw;
+  display: flex;
+  flex-direction: column;
+  padding: 2em 2.2em;
+  background: #ffffff;
+  border: 1px solid #e7e6e1;
+  border-radius: 1.3em;
+  color: #111110;
+  font-family: var(--sans);
+  overflow: hidden;
+  --logo-fg: #ffffff;
+}
+
+.idcard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5c5b56;
+}
+
+.idcard-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  font-weight: 500;
+  color: #111110;
+
+  svg {
+    width: 1.5em;
+    height: 1.5em;
+    color: #111110;
+  }
+}
+
+.idcard-no {
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+
+.idcard-body {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2em;
+}
+
+.idcard-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8em;
+  min-width: 0;
+}
+
+.idcard-person {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+.idcard-avatar {
+  display: grid;
+  place-items: center;
+  width: 3.6em;
+  height: 3.6em;
+  border-radius: 50%;
+  background: #f0efea;
+  border: 1px solid #e7e6e1;
+  font-size: 1em;
+  font-weight: 500;
+  color: #5c5b56;
+  flex: none;
+}
+
+.idcard-name {
+  font-family: var(--serif);
+  font-size: 2.5em;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.idcard-sub {
+  margin-top: 0.35em;
+  font-size: 0.95em;
+  color: #9a9993;
+}
+
+.idcard-fields {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 2.6em;
+  row-gap: 0.9em;
+
+  dt {
+    font-size: 0.72em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9a9993;
+    margin-bottom: 0.2em;
+  }
+
+  dd {
+    font-size: 1em;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.mono {
+      font-weight: 400;
+    }
+  }
+}
+
+.idcard-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6em;
+  width: 9.2em;
+  flex: none;
+
+  .qr {
+    width: 100%;
+  }
+
+  span {
+    font-size: 0.72em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9a9993;
+  }
+}
