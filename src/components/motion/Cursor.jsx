@@ -23,12 +23,12 @@ export default function Cursor() {
     if (!enabled) return;
     document.documentElement.classList.add("has-cursor");
 
-    const move = (e) => {
-      x.set(e.clientX);
-      y.set(e.clientY);
-      const el = e.target instanceof Element ? e.target : null;
+    let last = { x: -100, y: -100 };
+    // Work out what's under the pointer. Re-run after clicks and scrolls too,
+    // since dialogs can open (or content can move) without the mouse moving.
+    const inspect = (el) => {
       const hit = el?.closest(INTERACTIVE);
-      const text = !!el?.closest("input, textarea");
+      const text = !!el?.closest("input, textarea, select");
       const label = hit?.closest("[data-cursor]")?.getAttribute("data-cursor") || "";
       setState((s) =>
         s.hover === !!hit && s.label === label && s.text === text && !s.hidden
@@ -36,15 +36,35 @@ export default function Cursor() {
           : { ...s, hover: !!hit, label, text, hidden: false }
       );
     };
+    const recheck = () => inspect(document.elementFromPoint(last.x, last.y));
+    const move = (e) => {
+      last = { x: e.clientX, y: e.clientY };
+      x.set(e.clientX);
+      y.set(e.clientY);
+      inspect(e.target instanceof Element ? e.target : null);
+    };
+    let timer;
+    const later = () => {
+      clearTimeout(timer);
+      timer = setTimeout(recheck, 420);
+    };
     const leave = () => setState((s) => ({ ...s, hidden: true }));
     const down = () => setState((s) => ({ ...s, down: true }));
-    const up = () => setState((s) => ({ ...s, down: false }));
+    const up = () => {
+      setState((s) => ({ ...s, down: false }));
+      later();
+    };
 
     window.addEventListener("pointermove", move, { passive: true });
     document.addEventListener("pointerleave", leave);
     window.addEventListener("pointerdown", down);
     window.addEventListener("pointerup", up);
+    window.addEventListener("scroll", later, { passive: true });
+    window.addEventListener("keyup", later);
     return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", later);
+      window.removeEventListener("keyup", later);
       document.documentElement.classList.remove("has-cursor");
       window.removeEventListener("pointermove", move);
       document.removeEventListener("pointerleave", leave);

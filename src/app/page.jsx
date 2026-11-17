@@ -14,6 +14,41 @@ import Magnetic from "@/components/motion/Magnetic";
 import Spotlight from "@/components/motion/Spotlight";
 import SplitReveal from "@/components/motion/SplitReveal";
 import { driverStatus, getDriver, getDrivers, STATUS_LABEL } from "@/data/drivers";
+import { SITE } from "@/lib/site";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE.url}/#website`,
+      url: `${SITE.url}/`,
+      name: SITE.name,
+      description: SITE.description,
+      inLanguage: "en",
+    },
+    {
+      "@type": "WebApplication",
+      "@id": `${SITE.url}/#app`,
+      name: SITE.name,
+      url: `${SITE.url}/`,
+      description: SITE.description,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Any (web browser)",
+      browserRequirements: "Requires JavaScript",
+      isAccessibleForFree: true,
+      image: `${SITE.url}/opengraph-image`,
+      featureList: [
+        "Print-ready CR80 driver ID cards as PDF",
+        "QR code verification from any phone camera",
+        "Live document status: valid, expiring, expired",
+        "Full version history for every document",
+        "Upload scans and renewals of driver documents",
+        "Emergency contact on every record",
+      ],
+    },
+  ],
+};
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +95,11 @@ export default function Landing() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Static, trusted content; escaping "<" keeps it inert inside <script>.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <ScrollProgress />
       <Nav />
 

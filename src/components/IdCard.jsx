@@ -2,6 +2,8 @@ import { LogoMark } from "./Logo";
 import QrCode from "./QrCode";
 import { cardNumber, initials } from "@/data/drivers";
 
+const or = (v) => (v === undefined || v === null || v === "" ? "—" : v);
+
 // A CR80-proportioned driver card. All sizes are in `em`, and the base
 // font-size scales with the card's container, so it renders identically at
 // any width — including the off-screen copy used for PDF export.
@@ -20,13 +22,18 @@ export default function IdCard({ driver, ref }) {
         <div className="idcard-main">
           <div className="idcard-person">
             <div className="idcard-avatar" aria-hidden="true">
-              {initials(driver)}
+              {driver.photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={driver.photo} alt="" />
+              ) : (
+                initials(driver)
+              )}
             </div>
             <div>
               <div className="idcard-name">
                 {driver.first_name} {driver.last_name}
               </div>
-              <div className="idcard-sub">{driver.occupation}</div>
+              {driver.occupation && <div className="idcard-sub">{driver.occupation}</div>}
             </div>
           </div>
 
@@ -37,17 +44,15 @@ export default function IdCard({ driver, ref }) {
             </div>
             <div>
               <dt>Vehicle</dt>
-              <dd>
-                {driver.car} · {driver.vehicle_model_year}
-              </dd>
+              <dd>{[driver.car, driver.vehicle_model_year].filter(Boolean).join(" · ")}</dd>
             </div>
             <div>
               <dt>Emergency</dt>
-              <dd className="mono">{driver.emergency_phone_number}</dd>
+              <dd className="mono">{or(driver.emergency_phone_number)}</dd>
             </div>
             <div>
               <dt>Driving since</dt>
-              <dd>{driver.driving_since}</dd>
+              <dd>{or(driver.driving_since)}</dd>
             </div>
           </dl>
         </div>

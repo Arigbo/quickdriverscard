@@ -2,10 +2,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, ChevronRight, Search } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Plus, Search } from "lucide-react";
 import Logo from "@/components/Logo";
 import StatusBadge from "@/components/StatusBadge";
 import DriverDrawer from "./DriverDrawer";
+import AddDriverDialog from "./AddDriverDialog";
+import Avatar from "@/components/Avatar";
+import Magnetic from "@/components/motion/Magnetic";
+import { useDrivers } from "@/lib/useDrivers";
 import CountUp from "@/components/motion/CountUp";
 import SplitReveal from "@/components/motion/SplitReveal";
 import {
@@ -14,7 +18,6 @@ import {
   driverStatus,
   EXPIRING_WINDOW_DAYS,
   fullName,
-  initials,
   shortName,
 } from "@/data/drivers";
 
@@ -27,7 +30,9 @@ const FILTERS = [
   { key: "expired", label: "Expired" },
 ];
 
-export default function Dashboard({ drivers }) {
+export default function Dashboard({ seedRecords, seedVersions }) {
+  const { drivers } = useDrivers(seedRecords, seedVersions);
+  const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
@@ -54,7 +59,7 @@ export default function Dashboard({ drivers }) {
   }, [rows]);
 
   const counts = useMemo(() => {
-    const c = { all: rows.length, valid: 0, expiring: 0, expired: 0 };
+    const c = { all: rows.length, valid: 0, expiring: 0, expired: 0, none: 0 };
     rows.forEach((r) => (c[r.status] += 1));
     return c;
   }, [rows]);
@@ -72,6 +77,7 @@ export default function Dashboard({ drivers }) {
   }, [rows, query, filter]);
 
   const selected = rows.find((d) => d.id === selectedId) ?? null;
+  const nextId = rows.reduce((m, d) => Math.max(m, Number(d.id) || 0), 0) + 1;
 
   const today = new Date().toLocaleDateString("en-GB", {
     weekday: "long",
@@ -105,7 +111,20 @@ export default function Dashboard({ drivers }) {
           >
             {today}
           </motion.p>
-          <SplitReveal className="page-title" lines={[["Drivers"]]} delay={0.05} />
+          <div className="page-head-row">
+            <SplitReveal className="page-title" lines={[["Drivers"]]} delay={0.05} />
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4, ease }}
+            >
+              <Magnetic>
+                <button className="btn btn--primary" onClick={() => setAdding(true)}>
+                  <Plus size={16} strokeWidth={1.75} /> Add driver
+                </button>
+              </Magnetic>
+            </motion.div>
+          </div>
         </div>
 
         <dl className="stats">
@@ -190,9 +209,12 @@ export default function Dashboard({ drivers }) {
               transition={{ layout: { type: "spring", stiffness: 380, damping: 36 } }}
             >
               <span className="cell-driver">
-                <span className="avatar">{initials(d)}</span>
+                <Avatar driver={d} />
                 <span>
-                  <span className="cell-strong">{shortName(d)}</span>
+                  <span className="cell-strong">
+                    {shortName(d)}
+                    {d.source === "local" && <span className="tag">New</span>}
+                  </span>
                   <span className="cell-muted mono">{cardNumber(d)}</span>
                 </span>
               </span>
@@ -204,9 +226,9 @@ export default function Dashboard({ drivers }) {
               <span className="hide-md doc-dots" aria-label="Document statuses">
                 {d.documents.map((doc) => (
                   <span
-                    key={doc.doc}
+                    key={doc.type}
                     className={`dot dot--${docStatus(doc.expires)}`}
-                    title={doc.doc}
+                    title={doc.type}
                   />
                 ))}
               </span>
@@ -220,7 +242,7 @@ export default function Dashboard({ drivers }) {
 
           {visible.length === 0 && (
             <div className="empty">
-              <p>No drivers match &ldquo;{query}&rdquo;.</p>
+              <p>{query ? <>No drivers match &ldquo;{query}&rdquo;.</> : "No drivers in this view."}</p>
               <button className="link-arrow" onClick={() => { setQuery(""); setFilter("all"); }}>
                 Clear filters
               </button>
@@ -230,6 +252,16 @@ export default function Dashboard({ drivers }) {
       </main>
 
       <DriverDrawer driver={selected} onClose={() => setSelectedId(null)} />
+      <AddDriverDialog
+        open={adding}
+        onClose={() => setAdding(false)}
+        nextId={nextId}
+        onCreated={(id) => {
+          setQuery("");
+          setFilter("all");
+          setTimeout(() => setSelectedId(id), 450);
+        }}
+      />
     </div>
   );
 }

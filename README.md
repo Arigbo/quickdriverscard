@@ -11,8 +11,20 @@ verify the driver and check the live status of their vehicle documents.
 | `/dashboard`   | Driver registry: stats, search, status filters and a detail drawer         |
 | `/driver/[id]` | Public verification page. This is where a card's QR code points; built for phones |
 
-From the dashboard drawer you can download a driver's card as a true-size
-CR80 PDF (85.6 × 53.98 mm), open their verification page, or copy its link.
+**Dashboard**
+- **Add driver:** a form for identity, vehicle, emergency contact, an optional photo,
+  and any number of documents with a scan or PDF.
+- **Driver panel:**
+  - Download the card as a true-size CR80 PDF (85.6 × 53.98 mm).
+  - Open the verification page or copy its link.
+  - Browse each document's history, upload a renewal, or add a new document.
+
+**Document history.** Every document keeps all of its versions. On the verification
+page and in the dashboard, each document is an expandable row. The row shows the current
+status, and opening it reveals a timeline of every version, from newest to oldest.
+Selecting a version opens a viewer showing the uploaded scan or PDF, or a clearly
+marked specimen for demo data. The viewer also shows the document's details and has
+newer/older navigation (arrow keys work too).
 
 ## Stack
 
@@ -57,6 +69,30 @@ Motion components live in `src/components/motion/`. All of them respect `prefers
 
 Demo data lives in `src/data/drivers.js`. Document expiry dates are stored as
 day offsets from today, so the demo always shows a realistic mix of statuses.
+Each document's earlier versions are generated as its history.
+
+Drivers and documents added in the dashboard are saved in the browser's
+**IndexedDB** (`src/lib/store.js`) and merged with the demo data. They show up on
+the dashboard and the verification page in that browser, and stay in sync
+across its tabs. **They are not shared between devices.** To make that work,
+back the functions in `src/lib/store.js` with an API and a database (for
+example Postgres, plus object storage for files). The UI doesn't need to change.
+
+## SEO
+
+- **Metadata:** title template, description, canonical URLs, Open Graph and Twitter
+  cards (`src/app/layout.jsx` and per page).
+- **Share images:** generated with `next/og`. The site has one, and each verification
+  link gets its own showing the plate number and status. Names are left out on purpose.
+- **Crawling:** `robots.txt` and `sitemap.xml`. Verification pages are `noindex` and
+  disallowed, because they hold personal data.
+- **App and icons:** web app manifest, SVG icon, favicon, Apple touch icon and maskable PNG icons.
+- **Structured data:** JSON-LD (`WebSite` and `WebApplication`) on the landing page.
+
+Set `NEXT_PUBLIC_SITE_URL` to the production URL (e.g.
+`https://quickdriverscard.vercel.app`) so canonical URLs, the sitemap and share
+images use absolute links. On Vercel the production domain is detected
+automatically.
 
 ## Development
 
