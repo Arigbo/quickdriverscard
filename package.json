@@ -18,7 +18,8 @@
     "qrious": "^4.0.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "sass": "^1.92.0"
+    "sass": "^1.92.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

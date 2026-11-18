@@ -1,7 +1,8 @@
 "use client";
 import { useMemo } from "react";
 import Link from "next/link";
-import { Phone } from "lucide-react";
+import { FileWarning, Phone, ShieldAlert, ShieldCheck } from "lucide-react";
+import { missingTypes } from "@/data/nigeria";
 import Logo from "@/components/Logo";
 import Avatar from "@/components/Avatar";
 import Reveal from "@/components/Reveal";
@@ -20,9 +21,9 @@ const SUMMARY = {
 
 const EMPTY = [];
 
-export default function VerifyView({ id, seedRecord, seedVersions }) {
+export default function VerifyView({ id, seedRecord, seedVersions, seedVerifications }) {
   const records = useMemo(() => (seedRecord ? [seedRecord] : EMPTY), [seedRecord]);
-  const { drivers, ready } = useDrivers(records, seedVersions);
+  const { drivers, ready } = useDrivers(records, seedVersions, seedVerifications);
   const driver = drivers.find((d) => String(d.id) === String(id));
 
   if (!driver) {
@@ -36,6 +37,9 @@ export default function VerifyView({ id, seedRecord, seedVersions }) {
 
   const status = driverStatus(driver);
   const flagged = driver.documents.filter((d) => docStatus(d.expires) === status).length;
+  const verified = driver.documents.filter((d) => d.versions[0].verification?.status === "verified").length;
+  const flaggedChecks = driver.documents.filter((d) => ["mismatch", "not_found"].includes(d.versions[0].verification?.status)).length;
+  const missing = missingTypes(driver);
   const checkedAt = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   return (
@@ -46,6 +50,22 @@ export default function VerifyView({ id, seedRecord, seedVersions }) {
         <Reveal delay={1.0} className={`verify-status verify-status--${status}`}>
           <span className="badge-dot badge-dot--pulse" aria-hidden="true" />
           {SUMMARY[status](flagged)}
+        </Reveal>
+
+        <Reveal delay={1.1} className="verify-facts">
+          <span>
+            <ShieldCheck size={15} strokeWidth={1.75} /> {verified} of {driver.documents.length} confirmed with issuing authorities
+          </span>
+          {flaggedChecks > 0 && (
+            <span className="tone--expired">
+              <ShieldAlert size={15} strokeWidth={1.75} /> {flaggedChecks} failed verification
+            </span>
+          )}
+          {missing.length > 0 && (
+            <span className="tone--expiring">
+              <FileWarning size={15} strokeWidth={1.75} /> Missing: {missing.join(", ")}
+            </span>
+          )}
         </Reveal>
 
         <Reveal as="p" className="verify-label">Plate number</Reveal>
@@ -67,9 +87,9 @@ export default function VerifyView({ id, seedRecord, seedVersions }) {
       <Reveal as="section" delay={1.15} className="verify-section">
         <div className="verify-section-head">
           <h2 className="drawer-label">Documents</h2>
-          <p className="cell-muted">Tap a document to see its history.</p>
+          <p className="cell-muted">Tap a document to see its history and verification.</p>
         </div>
-        <DocumentHistory driver={driver} />
+        <DocumentHistory driver={driver} checklist={missing.length > 0} />
       </Reveal>
 
       <Reveal as="section" className="verify-section">

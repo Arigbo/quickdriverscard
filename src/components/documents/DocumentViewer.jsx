@@ -6,6 +6,8 @@ import Modal from "@/components/ui/Modal";
 import StatusBadge from "@/components/StatusBadge";
 import { formatBytes } from "@/components/ui/Dropzone";
 import { formatDate, relativeDays, versionStatus } from "@/data/drivers";
+import VerificationBadge from "@/components/verification/VerificationBadge";
+import { docInfo } from "@/data/nigeria";
 import DocumentPreview, { openFile } from "./DocumentPreview";
 
 // Full view of one document version, with newer/older navigation.
@@ -55,7 +57,21 @@ export default function DocumentViewer({ driver, doc, index, onIndex, onClose })
             <dl className="kv">
               <KV k="Document no." v={version.number || "—"} mono />
               <KV k="Issued" v={formatDate(version.issued)} />
-              <KV k="Expires" v={`${formatDate(version.expires)} · ${relativeDays(version.expires)}`} />
+              <KV k="Expires" v={version.expires ? `${formatDate(version.expires)} · ${relativeDays(version.expires)}` : "No expiry"} />
+              <KV k="Issuer" v={docInfo(doc.type)?.issuer ?? "—"} />
+              <KV
+                k="Verification"
+                v={
+                  <span className="viewer-file">
+                    <VerificationBadge verification={version.verification} />
+                    {version.verification && (
+                      <span className="cell-muted">
+                        {version.verification.provider} · {formatDate(version.verification.checkedAt?.slice(0, 10))}
+                      </span>
+                    )}
+                  </span>
+                }
+              />
               <KV k="Source" v={version.source === "local" ? `Uploaded ${formatDate(version.uploadedAt?.slice(0, 10))}` : "Demo record"} />
               {version.file && (
                 <KV

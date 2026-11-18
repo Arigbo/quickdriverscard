@@ -3,6 +3,8 @@
 // (so the demo always shows a realistic mix of statuses); earlier versions are
 // generated from it as the document's history.
 
+import { docInfo, NG_DOCUMENTS } from "./nigeria";
+
 const DAY = 24 * 60 * 60 * 1000;
 
 function fromToday(days) {
@@ -36,10 +38,16 @@ const seed = [
     occupation: "Software Engineer",
     driving_since: 2021,
     insurance_policy_number: "INS-LAG-0012345",
+    vehicle_use: "private",
+    imported: true,
     documents: [
       { doc: "Driver's Licence", in: 590 },
-      { doc: "Vehicle Registration", in: 212 },
-      { doc: "Insurance Certificate", in: 41 },
+      { doc: "Vehicle Registration", in: null },
+      { doc: "Vehicle Licence", in: 212 },
+      { doc: "Proof of Ownership", in: 212 },
+      { doc: "Motor Insurance", in: 41 },
+      { doc: "Roadworthiness Certificate", in: 212 },
+      { doc: "Customs Duty Papers", in: null },
     ],
   },
   {
@@ -66,10 +74,16 @@ const seed = [
     occupation: "Accountant",
     driving_since: 2015,
     insurance_policy_number: "INS-OYO-0023456",
+    vehicle_use: "private",
+    imported: true,
     documents: [
       { doc: "Driver's Licence", in: 830 },
-      { doc: "Insurance Certificate", in: 365 },
+      { doc: "Vehicle Registration", in: null },
+      { doc: "Vehicle Licence", in: 318 },
+      { doc: "Proof of Ownership", in: 318 },
+      { doc: "Motor Insurance", in: 351 },
       { doc: "Roadworthiness Certificate", in: 148 },
+      { doc: "Customs Duty Papers", in: null },
     ],
   },
   {
@@ -96,11 +110,16 @@ const seed = [
     occupation: "Civil Servant",
     driving_since: 1999,
     insurance_policy_number: "INS-FCT-0034567",
+    vehicle_use: "private",
+    imported: true,
     documents: [
       { doc: "Driver's Licence", in: -18 },
-      { doc: "Vehicle Registration", in: 104 },
-      { doc: "Insurance Certificate", in: 270 },
+      { doc: "Vehicle Registration", in: null },
       { doc: "Vehicle Licence", in: 22 },
+      { doc: "Proof of Ownership", in: 22 },
+      { doc: "Motor Insurance", in: 270 },
+      { doc: "Roadworthiness Certificate", in: 104 },
+      { doc: "Customs Duty Papers", in: null },
     ],
   },
   {
@@ -127,11 +146,16 @@ const seed = [
     occupation: "Entrepreneur",
     driving_since: 2018,
     insurance_policy_number: "INS-RIV-0045678",
+    vehicle_use: "private",
+    imported: true,
     documents: [
       { doc: "Driver's Licence", in: 1270 },
-      { doc: "Vehicle Registration", in: 640 },
-      { doc: "Insurance Certificate", in: 410 },
-      { doc: "Proof of Ownership", in: 1800 },
+      { doc: "Vehicle Registration", in: null },
+      { doc: "Vehicle Licence", in: 301 },
+      { doc: "Proof of Ownership", in: 301 },
+      { doc: "Motor Insurance", in: 296 },
+      { doc: "Roadworthiness Certificate", in: 301 },
+      { doc: "Customs Duty Papers", in: null },
     ],
   },
   {
@@ -158,11 +182,15 @@ const seed = [
     occupation: "Retired Teacher",
     driving_since: 1988,
     insurance_policy_number: "INS-ENU-0056789",
+    vehicle_use: "private",
+    imported: true,
     documents: [
       { doc: "Driver's Licence", in: 154 },
-      { doc: "Insurance Certificate", in: -63 },
-      { doc: "Roadworthiness Certificate", in: 154 },
+      { doc: "Vehicle Registration", in: null },
       { doc: "Vehicle Licence", in: 154 },
+      { doc: "Proof of Ownership", in: 154 },
+      { doc: "Motor Insurance", in: -63 },
+      { doc: "Roadworthiness Certificate", in: 154 },
     ],
   },
   {
@@ -189,10 +217,15 @@ const seed = [
     occupation: "Pharmacist",
     driving_since: 2010,
     insurance_policy_number: "INS-ANA-0067890",
+    vehicle_use: "private",
+    imported: false,
     documents: [
       { doc: "Driver's Licence", in: 702 },
-      { doc: "Vehicle Registration", in: 333 },
-      { doc: "Insurance Certificate", in: 189 },
+      { doc: "Vehicle Registration", in: null },
+      { doc: "Vehicle Licence", in: 333 },
+      { doc: "Proof of Ownership", in: 333 },
+      { doc: "Motor Insurance", in: 189 },
+      { doc: "Roadworthiness Certificate", in: 189 },
     ],
   },
   {
@@ -219,10 +252,16 @@ const seed = [
     occupation: "Logistics Rider",
     driving_since: 2020,
     insurance_policy_number: "INS-OGN-0078901",
+    vehicle_use: "commercial",
+    imported: true,
     documents: [
       { doc: "Driver's Licence", in: 68 },
-      { doc: "Vehicle Registration", in: 412 },
-      { doc: "Insurance Certificate", in: 12 },
+      { doc: "Vehicle Registration", in: null },
+      { doc: "Vehicle Licence", in: 287 },
+      { doc: "Proof of Ownership", in: 287 },
+      { doc: "Motor Insurance", in: 12 },
+      { doc: "Roadworthiness Certificate", in: 287 },
+      { doc: "Customs Duty Papers", in: null },
     ],
   },
   {
@@ -249,10 +288,14 @@ const seed = [
     occupation: "Architect",
     driving_since: 2012,
     insurance_policy_number: "INS-KAN-0089012",
+    vehicle_use: "private",
+    imported: false,
     documents: [
       { doc: "Driver's Licence", in: 960 },
-      { doc: "Vehicle Registration", in: 730 },
-      { doc: "Insurance Certificate", in: 352 },
+      { doc: "Vehicle Registration", in: null },
+      { doc: "Vehicle Licence", in: 330 },
+      { doc: "Proof of Ownership", in: 330 },
+      { doc: "Motor Insurance", in: 352 },
       { doc: "Roadworthiness Certificate", in: 290 },
     ],
   },
@@ -260,17 +303,9 @@ const seed = [
 
 export const EXPIRING_WINDOW_DAYS = 60;
 
-export const DOCUMENT_TYPES = [
-  { type: "Driver's Licence", prefix: "DL", years: 5 },
-  { type: "Vehicle Registration", prefix: "VR", years: 1 },
-  { type: "Insurance Certificate", prefix: "IC", years: 1 },
-  { type: "Roadworthiness Certificate", prefix: "RW", years: 1 },
-  { type: "Vehicle Licence", prefix: "VL", years: 1 },
-  { type: "Proof of Ownership", prefix: "PO", years: 5 },
-];
+export const DOCUMENT_TYPES = NG_DOCUMENTS;
 
-const typeInfo = (type) =>
-  DOCUMENT_TYPES.find((t) => t.type === type) ?? { type, prefix: "DOC", years: 1 };
+const typeInfo = (type) => docInfo(type) ?? { type, prefix: "DOC", years: 1 };
 
 /* ---------- Dates ---------- */
 
@@ -306,6 +341,7 @@ export function formatDate(isoDate) {
 }
 
 export function relativeDays(isoDate) {
+  if (!isoDate) return "no expiry";
   const days = daysUntil(isoDate);
   if (days === 0) return "today";
   if (days > 0) return days === 1 ? "in 1 day" : `in ${days} days`;
@@ -316,6 +352,7 @@ export function relativeDays(isoDate) {
 /* ---------- Status ---------- */
 
 export function docStatus(isoDate) {
+  if (!isoDate) return "valid"; // documents that never expire
   const days = daysUntil(isoDate);
   if (days < 0) return "expired";
   if (days <= EXPIRING_WINDOW_DAYS) return "expiring";
@@ -326,7 +363,7 @@ export function docStatus(isoDate) {
 // one either ran out ("lapsed") or was replaced before it did.
 export function versionStatus(doc, version) {
   if (version.id === doc.versions[0].id) return docStatus(version.expires);
-  return daysUntil(version.expires) < 0 ? "lapsed" : "replaced";
+  return version.expires && daysUntil(version.expires) < 0 ? "lapsed" : "replaced";
 }
 
 export function driverStatus(driver) {
@@ -385,21 +422,24 @@ function seedVersions(driver) {
   const out = [];
   driver.documents.forEach(({ doc, in: days }, ti) => {
     const { prefix, years } = typeInfo(doc);
-    // Longer-serving drivers have more renewals on record.
+    const base = { driverId: driver.id, type: doc, file: null, source: "seed" };
+    if (days === null) {
+      // Non-expiring documents have a single version.
+      out.push({
+        ...base,
+        id: `s-${driver.id}-${ti}-0`,
+        number: doc === "Vehicle Registration" ? driver.plate_number : doc === "Customs Duty Papers" ? driver.chassis_number : docNumber(driver, prefix, 0),
+        issued: fromToday(-(400 + driver.id * 53)),
+        expires: null,
+      });
+      return;
+    }
+    // Longer-serving documents have more renewals on record.
     const history = years >= 5 ? 1 : 2 + ((driver.id + ti) % 2);
     let expires = fromToday(days);
     let issued = addYears(expires, -years);
     for (let k = 0; k <= history; k++) {
-      out.push({
-        id: `s-${driver.id}-${ti}-${k}`,
-        driverId: driver.id,
-        type: doc,
-        number: docNumber(driver, prefix, k),
-        issued,
-        expires,
-        file: null,
-        source: "seed",
-      });
+      out.push({ ...base, id: `s-${driver.id}-${ti}-${k}`, number: docNumber(driver, prefix, k), issued, expires });
       // Each earlier version expired the day before its successor was issued.
       expires = addDays(issued, -1);
       issued = addYears(expires, -years);
@@ -408,13 +448,59 @@ function seedVersions(driver) {
   return out;
 }
 
-// Combine driver records with their document versions (seed + any uploads).
-export function assemble(records, versions) {
+// Illustrative verification results for the demo data (clearly marked as demo).
+function seedVerifications(versions) {
+  const out = [];
+  for (const v of versions) {
+    if (!v.id.endsWith("-0")) continue; // current versions only
+    const info = typeInfo(v.type);
+    const portal = info.verify?.portal;
+    const driverId = v.driverId;
+    const base = { versionId: v.id, driverId, demo: true, checkedAt: addDays(v.issued, 3) + "T10:00:00.000Z" };
+    if (v.type === "Driver's Licence") {
+      out.push({
+        ...base,
+        status: driverId === 3 ? "mismatch" : "verified",
+        method: "api",
+        provider: "FRSC licence lookup",
+        reference: `DEMO-DL-${driverId}${v.number.slice(-4)}`,
+        matches: [
+          { field: "Licence number", ok: true },
+          { field: "Name", ok: true },
+          { field: "Expiry date", ok: driverId !== 3 },
+        ],
+        note: driverId === 3 ? "FRSC record shows the licence has expired." : "",
+      });
+    } else if (v.type === "Vehicle Registration") {
+      out.push({ ...base, status: "verified", method: "api", provider: "NVIS plate lookup", reference: `DEMO-VR-${driverId}`, matches: [{ field: "Plate number", ok: true }, { field: "Vehicle", ok: true }] });
+    } else if (v.type === "Motor Insurance" && driverId !== 7) {
+      out.push({
+        ...base,
+        status: driverId === 5 ? "not_found" : "verified",
+        method: "manual",
+        provider: portal?.name,
+        note: driverId === 5 ? "Policy not found on NIID for this plate." : "",
+      });
+    } else if (v.type === "Customs Duty Papers" && driverId % 2 === 0) {
+      out.push({ ...base, status: "verified", method: "manual", provider: portal?.name, reference: `DEMO-CVMS-${driverId}` });
+    }
+  }
+  return out;
+}
+
+// Combine driver records with their document versions (seed + uploads) and
+// the latest verification result for each version.
+export function assemble(records, versions, verifications = []) {
+  const checks = new Map();
+  for (const c of verifications) {
+    const prev = checks.get(c.versionId);
+    if (!prev || (c.checkedAt ?? "") >= (prev.checkedAt ?? "")) checks.set(c.versionId, c);
+  }
   const byDriver = new Map();
   for (const v of versions) {
     const key = String(v.driverId);
     if (!byDriver.has(key)) byDriver.set(key, []);
-    byDriver.get(key).push(v);
+    byDriver.get(key).push({ ...v, verification: checks.get(v.id) ?? null });
   }
   return records.map((r) => ({
     ...r,
@@ -434,8 +520,12 @@ export function getSeedVersions() {
   return seed.flatMap(seedVersions);
 }
 
+export function getSeedVerifications() {
+  return seedVerifications(getSeedVersions());
+}
+
 export function getDrivers() {
-  return assemble(getSeedRecords(), getSeedVersions());
+  return assemble(getSeedRecords(), getSeedVersions(), getSeedVerifications());
 }
 
 export function getDriver(id) {

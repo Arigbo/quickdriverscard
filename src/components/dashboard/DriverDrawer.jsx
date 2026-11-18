@@ -140,7 +140,7 @@ function Panel({ driver, onClose }) {
 
           <motion.section className="drawer-section" variants={item}>
             <h3 className="drawer-label">Documents</h3>
-            <DocumentHistory driver={driver} editable />
+            <DocumentHistory driver={driver} editable checklist />
           </motion.section>
 
           <motion.section className="drawer-section" variants={item}>
@@ -159,6 +159,8 @@ function Panel({ driver, onClose }) {
             <h3 className="drawer-label">Vehicle</h3>
             <dl className="kv">
               <KV k="Make" v={driver.vehicle_model_year ? `${driver.car} (${driver.vehicle_model_year})` : driver.car} />
+              <KV k="Use" v={driver.vehicle_use === "commercial" ? "Commercial" : "Private"} />
+              <KV k="Origin" v={driver.imported ? "Imported" : "Locally assembled / bought"} />
               <KV k="Plate" v={driver.plate_number} mono />
               <KV k="Engine no." v={driver.engine_number} mono />
               <KV k="Chassis no." v={driver.chassis_number} mono />

@@ -6,6 +6,8 @@ import Modal from "@/components/ui/Modal";
 import Field from "@/components/ui/Field";
 import { emptyVersion, validateVersion, VersionFields } from "@/components/documents/UploadVersionDialog";
 import { createDriver } from "@/lib/store";
+import { canAutoVerify, runCheck } from "@/lib/verify";
+import { docInfo, requiredTypes } from "@/data/nigeria";
 import { compressDocument, photoToDataUrl } from "@/lib/image";
 
 const EMPTY = {
@@ -32,6 +34,8 @@ const EMPTY = {
   emergency_contact_name: "",
   relationship_to_driver: "",
   emergency_phone_number: "",
+  vehicle_use: "private",
+  imported: "yes",
 };
 
 const REQUIRED = {
@@ -69,6 +73,8 @@ export default function AddDriverDialog({ open, onClose, nextId, onCreated }) {
       setFailure("");
     }
   }, [open]);
+
+  const required = requiredTypes({ vehicle_use: form.vehicle_use, imported: form.imported === "yes" });
 
   const bind = (k) => ({
     id: `f-${k}`,
@@ -108,15 +114,20 @@ export default function AddDriverDialog({ open, onClose, nextId, onCreated }) {
         plate_number: form.plate_number.trim().toUpperCase(),
         vehicle_model_year: form.vehicle_model_year ? Number(form.vehicle_model_year) : "",
         driving_since: form.driving_since ? Number(form.driving_since) : "",
+        imported: form.imported === "yes",
       };
       const versions = [];
       for (const d of docs) {
         const { type } = validateVersion(d);
         versions.push({ ...d, type, file: d.file ? await compressDocument(d.file) : null });
       }
-      await createDriver(record, versions);
+      const driver = await createDriver(record, versions);
       onCreated?.(record.id);
       onClose();
+      // Run automatic checks for documents that have an API (licence, plate).
+      for (const v of driver.versions ?? []) {
+        if (canAutoVerify(v.type)) runCheck(record, v).catch((err) => console.warn("Automatic check failed", err));
+      }
     } catch (err) {
       console.error(err);
       setFailure("Couldn't save the driver. Please try again.");
@@ -226,6 +237,18 @@ export default function AddDriverDialog({ open, onClose, nextId, onCreated }) {
             <Field label="Model year" error={errors.vehicle_model_year} htmlFor="f-vehicle_model_year">
               <input type="number" inputMode="numeric" className="input" {...bind("vehicle_model_year")} />
             </Field>
+            <Field label="Use" htmlFor="f-vehicle_use" hint="Commercial vehicles also need a hackney permit.">
+              <select className="input" {...bind("vehicle_use")}>
+                <option value="private">Private</option>
+                <option value="commercial">Commercial (taxi, ride-hailing, logistics)</option>
+              </select>
+            </Field>
+            <Field label="Imported?" htmlFor="f-imported" hint="Imported vehicles also need customs duty papers.">
+              <select className="input" {...bind("imported")}>
+                <option value="yes">Yes — foreign-used or new import</option>
+                <option value="no">No — locally assembled</option>
+              </select>
+            </Field>
             <Field label="Last service" htmlFor="f-last_service_date">
               <input type="date" className="input" {...bind("last_service_date")} />
             </Field>
@@ -268,6 +291,32 @@ export default function AddDriverDialog({ open, onClose, nextId, onCreated }) {
             <p className="cell-muted">Add each document&rsquo;s current version. Renewals can be uploaded later and build its history.</p>
           </div>
           <div className="doc-entries">
+            <div className="req-chips" aria-label="Required documents for this vehicle">
+              <p className="cell-muted">Required for this vehicle — tap to add:</p>
+              <div>
+                {required.map((t) => {
+                  const added = docs.some((d) => d.type === t);
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`req-chip ${added ? "is-added" : ""}`}
+                      aria-pressed={added}
+                      onClick={() => {
+                        if (added) return;
+                        const v = emptyVersion(t);
+                        if (docInfo(t)?.numberFromPlate) v.number = form.plate_number.toUpperCase();
+                        if (docInfo(t)?.numberFromChassis) v.number = form.chassis_number;
+                        setDocs((x) => [...x, v]);
+                      }}
+                    >
+                      {added ? "✓ " : "+ "}
+                      {t}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <AnimatePresence initial={false}>
               {docs.map((d, i) => (
                 <motion.div

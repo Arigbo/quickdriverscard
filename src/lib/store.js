@@ -8,7 +8,7 @@
 // change.
 
 const DB_NAME = "quickdriverscard";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const CHANNEL = "qdc-store";
 
 let dbPromise = null;
@@ -19,10 +19,12 @@ function openDb() {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
-      db.createObjectStore("drivers", { keyPath: "id" });
-      const versions = db.createObjectStore("versions", { keyPath: "id" });
-      versions.createIndex("driverId", "driverId");
-      db.createObjectStore("files", { keyPath: "id" });
+      const has = (n) => db.objectStoreNames.contains(n);
+      if (!has("drivers")) db.createObjectStore("drivers", { keyPath: "id" });
+      if (!has("versions")) db.createObjectStore("versions", { keyPath: "id" }).createIndex("driverId", "driverId");
+      if (!has("files")) db.createObjectStore("files", { keyPath: "id" });
+      // v2: latest verification result per document version.
+      if (!has("verifications")) db.createObjectStore("verifications", { keyPath: "versionId" });
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -69,8 +71,8 @@ export function subscribe(cb) {
 /* ---------- Reads ---------- */
 
 export async function loadLocal() {
-  const [drivers, versions] = await Promise.all([all("drivers"), all("versions")]);
-  return { drivers, versions };
+  const [drivers, versions, verifications] = await Promise.all([all("drivers"), all("versions"), all("verifications")]);
+  return { drivers, versions, verifications };
 }
 
 export function getFile(id) {
@@ -113,18 +115,23 @@ export async function addVersions(driverId, versions) {
 export async function createDriver(record, versions = []) {
   const driver = { ...record, source: "local", createdAt: new Date().toISOString() };
   await tx(["drivers"], "readwrite", (s) => s.put(driver));
-  if (versions.length) await addVersions(driver.id, versions);
-  else notify();
-  return driver;
+  const saved = versions.length ? await addVersions(driver.id, versions) : (notify(), []);
+  return { ...driver, versions: saved };
+}
+
+export async function saveVerification(result) {
+  await tx(["verifications"], "readwrite", (s) => s.put(result));
+  notify();
 }
 
 export async function deleteDriver(id) {
   const { versions } = await loadLocal();
   const mine = versions.filter((v) => String(v.driverId) === String(id));
-  await tx(["drivers", "versions", "files"], "readwrite", (d, v, f) => {
+  await tx(["drivers", "versions", "files", "verifications"], "readwrite", (d, v, f, c) => {
     d.delete(id);
     mine.forEach((x) => {
       v.delete(x.id);
+      c.delete(x.id);
       if (x.file) f.delete(x.file.id);
     });
   });
