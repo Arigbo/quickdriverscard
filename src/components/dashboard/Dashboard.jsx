@@ -10,6 +10,7 @@ import AddDriverDialog from "./AddDriverDialog";
 import Avatar from "@/components/Avatar";
 import Magnetic from "@/components/motion/Magnetic";
 import { useDrivers } from "@/lib/useDrivers";
+import { missingTypes } from "@/data/nigeria";
 import CountUp from "@/components/motion/CountUp";
 import SplitReveal from "@/components/motion/SplitReveal";
 import {
@@ -30,8 +31,8 @@ const FILTERS = [
   { key: "expired", label: "Expired" },
 ];
 
-export default function Dashboard({ seedRecords, seedVersions }) {
-  const { drivers } = useDrivers(seedRecords, seedVersions);
+export default function Dashboard({ seedRecords, seedVersions, seedVerifications }) {
+  const { drivers } = useDrivers(seedRecords, seedVersions, seedVerifications);
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -50,9 +51,12 @@ export default function Dashboard({ seedRecords, seedVersions }) {
 
   const stats = useMemo(() => {
     const docs = rows.flatMap((d) => d.documents.map((x) => docStatus(x.expires)));
+    const current = rows.flatMap((d) => d.documents.map((x) => x.versions[0]));
     return {
       drivers: rows.length,
       documents: docs.length,
+      verified: current.filter((v) => v.verification?.status === "verified").length,
+      missing: rows.reduce((n, d) => n + missingTypes(d).length, 0),
       expiring: docs.filter((s) => s === "expiring").length,
       expired: docs.filter((s) => s === "expired").length,
     };
@@ -129,7 +133,7 @@ export default function Dashboard({ seedRecords, seedVersions }) {
 
         <dl className="stats">
           <Stat i={0} label="Registered drivers" value={stats.drivers} />
-          <Stat i={1} label="Documents on file" value={stats.documents} />
+          <Stat i={1} label={`of ${stats.documents} documents verified with issuers`} value={stats.verified} />
           <Stat
             i={2}
             label={`Expiring within ${EXPIRING_WINDOW_DAYS} days`}
@@ -227,10 +231,15 @@ export default function Dashboard({ seedRecords, seedVersions }) {
                 {d.documents.map((doc) => (
                   <span
                     key={doc.type}
-                    className={`dot dot--${docStatus(doc.expires)}`}
-                    title={doc.type}
+                    className={`dot dot--${docStatus(doc.expires)} ${doc.versions[0].verification?.status === "verified" ? "dot--checked" : ""}`}
+                    title={`${doc.type}${doc.versions[0].verification?.status === "verified" ? " · verified" : ""}`}
                   />
                 ))}
+                {missingTypes(d).length > 0 && (
+                  <span className="doc-missing" title={`Missing: ${missingTypes(d).join(", ")}`}>
+                    +{missingTypes(d).length} missing
+                  </span>
+                )}
               </span>
               <span>
                 <StatusBadge status={d.status} />

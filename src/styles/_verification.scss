@@ -1,0 +1,368 @@
+@use "mixins" as *;
+
+/* ---------- Badge ---------- */
+.vbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--ink-3);
+
+  &--verified {
+    color: var(--valid);
+  }
+
+  &--mismatch {
+    color: var(--expiring);
+  }
+
+  &--not_found,
+  &--error {
+    color: var(--expired);
+  }
+}
+
+/* ---------- Panel inside a document row ---------- */
+.vpanel {
+  margin: 4px 0 22px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+
+  &--verified {
+    border-color: rgba(31, 122, 77, 0.25);
+  }
+
+  &--mismatch {
+    border-color: rgba(154, 98, 16, 0.3);
+  }
+
+  &--not_found,
+  &--error {
+    border-color: rgba(176, 64, 42, 0.3);
+  }
+}
+
+.vpanel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  .timeline-label {
+    margin-bottom: 4px;
+  }
+
+  .vbadge {
+    font-size: 14px;
+  }
+}
+
+.vpanel-meta {
+  text-align: right;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.vpanel-matches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 12px;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+
+    &.ok {
+      color: var(--valid);
+    }
+
+    &.bad {
+      color: var(--expired);
+    }
+  }
+}
+
+.vpanel-note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.vpanel-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Manual check dialog ---------- */
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  > li {
+    display: flex;
+    gap: 14px;
+  }
+
+  .link-arrow {
+    margin-top: 2px;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+}
+
+.steps-n {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.steps-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.copy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-size: 14px;
+
+  &:hover {
+    border-color: var(--ink);
+  }
+}
+
+.outcomes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+
+  @include below($sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 13px;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+
+  .cell-muted {
+    font-size: 12px;
+  }
+
+  &.is-active {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- Required-documents checklist ---------- */
+.checklist {
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--hover);
+
+  ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+    margin-top: 10px;
+
+    @include below($sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+
+    &.missing {
+      color: var(--ink);
+    }
+
+    .link-arrow {
+      margin-left: auto;
+      font-size: 12px;
+    }
+  }
+}
+
+.checklist-sum {
+  font-size: 12px;
+}
+
+.checklist-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px dashed var(--line-strong);
+  color: var(--bg);
+
+  .ok & {
+    border: 0;
+    background: var(--valid);
+  }
+
+  .missing & {
+    border-color: var(--expiring);
+  }
+}
+
+.checklist-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+
+  .cell-muted {
+    font-size: 11px;
+  }
+}
+
+.checklist-missing {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--expiring);
+}
+
+/* ---------- Add-driver form helpers ---------- */
+.req-chips {
+  width: 100%;
+
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}
+
+.req-chip {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px dashed var(--line-strong);
+  font-size: 12px;
+  color: var(--ink-2);
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
+
+  &:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  &.is-added {
+    border-style: solid;
+    border-color: var(--valid);
+    background: var(--valid-bg);
+    color: var(--valid);
+    cursor: default;
+  }
+}
+
+.doc-info {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--hover);
+}
+
+/* ---------- Dashboard + verify page bits ---------- */
+.dot--checked {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px currentColor;
+  color: var(--valid);
+}
+
+.doc-missing {
+  margin-left: 4px;
+  font-size: 11px;
+  color: var(--expiring);
+  white-space: nowrap;
+}
+
+.doc-dots {
+  align-items: center;
+}
+
+.verify-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: -24px 0 clamp(40px, 7vh, 64px);
+  font-size: 13px;
+  color: var(--ink-2);
+
+  span {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    svg {
+      flex: none;
+      margin-top: 2px;
+    }
+  }
+}
+
+.timeline-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

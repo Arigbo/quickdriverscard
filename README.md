@@ -65,6 +65,28 @@ Motion components live in `src/components/motion/`. All of them respect `prefers
   - a pulsing status dot
   - a dot-grid light that follows the cursor
 
+## Document verification (Nigeria)
+
+The app knows which documents a Nigerian driver needs. These depend on whether
+the vehicle is private or commercial, and imported or local. The app can also
+check each document with the authority that issued it.
+
+- **Automatic checks:** the driver's licence (FRSC, via Dojah) and plate
+  number (NVIS, via Prembly) are checked through `POST /api/verify`. API keys
+  stay on the server. Results are matched against the record on file.
+- **Guided manual checks:** insurance (NIID), vehicle licence, proof of
+  ownership and hackney permit (AutoReg), roadworthiness (Lagos DVIS) and
+  customs papers (CVMS). The dashboard opens the official portal, shows what to
+  enter, and records the outcome.
+- **Required-documents checklist:** shown in the dashboard and on the public
+  verification page. The verification page also shows how many documents have
+  been confirmed with the issuing authorities.
+
+With no keys set, checks run in a labelled **simulated** mode. Copy
+`.env.example` to `.env.local` and add provider keys to go live. Research,
+portal links and sources are in
+[`docs/nigeria-document-verification.md`](docs/nigeria-document-verification.md).
+
 ## Data
 
 Demo data lives in `src/data/drivers.js`. Document expiry dates are stored as

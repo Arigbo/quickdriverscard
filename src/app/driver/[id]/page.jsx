@@ -1,5 +1,5 @@
 import VerifyView from "@/components/verify/VerifyView";
-import { cardNumber, getDriver, getSeedVersions } from "@/data/drivers";
+import { cardNumber, getDriver, getSeedVerifications, getSeedVersions } from "@/data/drivers";
 
 // Document status depends on today's date, so render per request.
 export const dynamic = "force-dynamic";
@@ -28,5 +28,6 @@ export default async function VerifyPage({ params }) {
   const driver = getDriver(id);
   const { documents, ...record } = driver ?? {};
   const versions = driver ? getSeedVersions().filter((v) => String(v.driverId) === String(id)) : [];
-  return <VerifyView id={id} seedRecord={driver ? record : null} seedVersions={versions} />;
+  const checks = driver ? getSeedVerifications().filter((c) => String(c.driverId) === String(id)) : [];
+  return <VerifyView id={id} seedRecord={driver ? record : null} seedVersions={versions} seedVerifications={checks} />;
 }

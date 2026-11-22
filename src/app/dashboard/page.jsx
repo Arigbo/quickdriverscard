@@ -1,5 +1,5 @@
 import Dashboard from "@/components/dashboard/Dashboard";
-import { getSeedRecords, getSeedVersions } from "@/data/drivers";
+import { getSeedRecords, getSeedVerifications, getSeedVersions } from "@/data/drivers";
 
 export const metadata = {
   title: "Dashboard",
@@ -14,5 +14,11 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
-  return <Dashboard seedRecords={getSeedRecords()} seedVersions={getSeedVersions()} />;
+  return (
+    <Dashboard
+      seedRecords={getSeedRecords()}
+      seedVersions={getSeedVersions()}
+      seedVerifications={getSeedVerifications()}
+    />
+  );
 }

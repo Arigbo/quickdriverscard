@@ -12,13 +12,16 @@ import {
 } from "@/data/drivers";
 import DocumentViewer from "./DocumentViewer";
 import UploadVersionDialog from "./UploadVersionDialog";
+import VerificationPanel from "@/components/verification/VerificationPanel";
+import VerificationBadge from "@/components/verification/VerificationBadge";
+import RequiredChecklist from "@/components/verification/RequiredChecklist";
 
 const ease = [0.22, 1, 0.36, 1];
 
 // Each document is a disclosure row: the summary shows current status, and
 // expanding it reveals a timeline of every version. Selecting a version opens
 // the viewer. `editable` adds upload controls (dashboard only).
-export default function DocumentHistory({ driver, editable = false, defaultOpen = [] }) {
+export default function DocumentHistory({ driver, editable = false, defaultOpen = [], checklist = false }) {
   const [open, setOpen] = useState(() => new Set(defaultOpen));
   const [viewing, setViewing] = useState(null); // { type, index }
   const [uploading, setUploading] = useState(null); // { type } | { type: null }
@@ -34,6 +37,7 @@ export default function DocumentHistory({ driver, editable = false, defaultOpen 
 
   return (
     <>
+      {checklist && <RequiredChecklist driver={driver} onAdd={editable ? (type) => setUploading({ type }) : null} />}
       {driver.documents.length === 0 ? (
         <div className="docs-empty">
           <p className="cell-strong">No documents on file</p>
@@ -44,6 +48,8 @@ export default function DocumentHistory({ driver, editable = false, defaultOpen 
           {driver.documents.map((doc) => (
             <DocRow
               key={doc.type}
+              driver={driver}
+              editable={editable}
               doc={doc}
               open={open.has(doc.type)}
               onToggle={() => toggle(doc.type)}
@@ -81,7 +87,7 @@ export default function DocumentHistory({ driver, editable = false, defaultOpen 
   );
 }
 
-function DocRow({ doc, open, onToggle, onView, onUpload }) {
+function DocRow({ driver, editable, doc, open, onToggle, onView, onUpload }) {
   const panelId = useId();
   const status = docStatus(doc.expires);
   const count = doc.versions.length;
@@ -92,13 +98,16 @@ function DocRow({ doc, open, onToggle, onView, onUpload }) {
         <span className="doc-row-text">
           <span className="cell-strong">{doc.type}</span>
           <span className="cell-muted">
-            {status === "expired" ? "Expired" : "Expires"} {formatDate(doc.expires)} · {relativeDays(doc.expires)}
+            {doc.expires
+              ? `${status === "expired" ? "Expired" : "Expires"} ${formatDate(doc.expires)} · ${relativeDays(doc.expires)}`
+              : `Issued ${formatDate(doc.versions[0].issued)} · no expiry`}
           </span>
         </span>
         <span className="doc-row-meta">
           <span className="doc-row-count">
             {count} {count === 1 ? "version" : "versions"}
           </span>
+          <VerificationBadge verification={doc.versions[0].verification} compact />
           <StatusBadge status={status} />
           <ChevronDown size={16} strokeWidth={1.5} className="doc-row-chevron" aria-hidden="true" />
         </span>
@@ -115,6 +124,7 @@ function DocRow({ doc, open, onToggle, onView, onUpload }) {
             transition={{ duration: 0.45, ease }}
           >
             <div className="doc-row-inner">
+              <VerificationPanel driver={driver} version={doc.versions[0]} editable={editable} />
               <p className="timeline-label">History</p>
               <ol className="timeline">
                 {doc.versions.map((v, i) => {
@@ -135,10 +145,13 @@ function DocRow({ doc, open, onToggle, onView, onUpload }) {
                             {v.file && <Paperclip size={12} strokeWidth={1.75} aria-label="Has file" />}
                           </span>
                           <span className="cell-muted">
-                            {formatDate(v.issued)} – {formatDate(v.expires)}
+                            {v.expires ? `${formatDate(v.issued)} – ${formatDate(v.expires)}` : `Issued ${formatDate(v.issued)}`}
                           </span>
                         </span>
-                        <span className={`timeline-status tone--${s}`}>{STATUS_LABEL[s]}</span>
+                        <span className="timeline-status">
+                          {v.verification && <VerificationBadge verification={v.verification} compact />}
+                          <span className={`tone--${s}`}>{STATUS_LABEL[s]}</span>
+                        </span>
                         <ArrowUpRight size={15} strokeWidth={1.5} className="timeline-go" aria-hidden="true" />
                       </button>
                     </motion.li>
